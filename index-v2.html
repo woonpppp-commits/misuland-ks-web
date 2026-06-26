@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Misuland กำแพงแสน — สั่งจองล่วงหน้า 🍞</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Thai+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5E6C8; --cream2:#FFFCF6; --cream3:#FBEFD6; --sand:#F0DDB8;
+  --brown:#5C2D0A; --brown2:#7A4A20; --muted:#A0704A;
+  --accent:#E8743B; --accent2:#F4A259; --gold:#C8860A; --green:#2D6A4F;
+  --border:#EAD3AE; --line:#F0E2C8;
+  --shadow:0 18px 44px -20px rgba(92,45,10,.45);
+  --shadow-sm:0 8px 20px -10px rgba(92,45,10,.42);
+  --shadow-xs:0 4px 12px -6px rgba(92,45,10,.3);
+  --card:0 10px 30px -18px rgba(92,45,10,.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Baloo Thai 2',system-ui,sans-serif;}
+body{
+  background:
+    radial-gradient(900px 380px at 80% -120px,#FCEBCF 0%,transparent 70%),
+    radial-gradient(700px 320px at -10% 8%,#FBE6CB 0%,transparent 65%),
+    var(--cream);
+  background-attachment:fixed;
+  color:var(--brown);line-height:1.5;padding-bottom:104px;
+}
+img{max-width:100%;display:block;}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px;}
+
+/* ===== header ===== */
+header{
+  position:relative;overflow:hidden;
+  background:linear-gradient(155deg,#6B380F 0%,#5C2D0A 55%,#7A4A20 100%);
+  color:var(--cream);padding:26px 0 30px;text-align:center;
+  border-radius:0 0 30px 30px;box-shadow:var(--shadow);
+}
+header::before,header::after{content:"";position:absolute;border-radius:50%;opacity:.14;background:var(--accent2);}
+header::before{width:200px;height:200px;top:-90px;right:-50px;}
+header::after{width:140px;height:140px;bottom:-70px;left:-30px;background:var(--gold);}
+header .hin{position:relative;z-index:1;}
+header img{height:44px;margin:0 auto 10px;filter:brightness(0) invert(1);}
+header h1{font-size:22px;color:#fff;letter-spacing:.2px;}
+header p{font-size:13.5px;color:#F6DCBC;margin-top:4px;}
+.badges-row{display:flex;justify-content:center;gap:7px;margin-top:13px;flex-wrap:wrap;}
+.chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#FFF0DC;font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px;backdrop-filter:blur(4px);}
+
+/* ===== section as cards ===== */
+section{
+  margin-top:16px;background:var(--cream2);
+  border:1px solid var(--line);border-radius:22px;
+  padding:16px 15px;box-shadow:var(--card);
+}
+section:first-of-type{margin-top:20px;}
+.label{font-weight:800;font-size:17px;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+.label .ic{width:30px;height:30px;border-radius:10px;background:#FFF1E4;display:grid;place-items:center;font-size:16px;flex:0 0 auto;box-shadow:var(--shadow-xs);}
+.label small{font-weight:500;font-size:12px;color:var(--muted);}
+
+/* ===== rounds ===== */
+.rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:9px;}
+.round{background:#fff;border:2px solid var(--border);border-radius:16px;padding:12px 6px;text-align:center;cursor:pointer;transition:.2s cubic-bezier(.34,1.56,.64,1);position:relative;box-shadow:var(--shadow-xs);}
+.round:active{transform:scale(.97);}
+.round.active{border-color:var(--accent);background:linear-gradient(160deg,#FFF3E8,#FFE9D6);box-shadow:0 10px 22px -12px rgba(232,116,59,.6);transform:translateY(-2px);}
+.round.active::after{content:"✓";position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:var(--accent);color:#fff;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;box-shadow:var(--shadow-xs);}
+.round b{font-size:15px;display:block;}
+.round span{font-size:11px;color:var(--brown2);display:block;line-height:1.4;margin-top:4px;}
+.round.closed{opacity:.55;cursor:not-allowed;background:#EFE6D6;}
+.round.closed .full{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(146,43,33,.86);color:#fff;font-weight:800;font-size:14px;border-radius:14px;}
+
+/* ===== menu ===== */
+.cat{font-weight:800;font-size:13px;color:var(--accent);margin:4px 0 11px;text-transform:none;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
+.cat::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.item{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:11px 13px;margin-bottom:9px;transition:.18s;box-shadow:var(--shadow-xs);}
+.item .ava{width:42px;height:42px;border-radius:13px;background:linear-gradient(160deg,#FFF1E0,#FBE3C6);display:grid;place-items:center;font-size:22px;flex:0 0 auto;}
+.item .info{flex:1;min-width:0;}
+.item .nm{font-weight:600;font-size:15px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25;}
+.item .pr{font-size:13.5px;color:var(--accent);font-weight:700;margin-top:2px;}
+.item .tag{font-size:10px;font-weight:800;color:#fff;background:var(--accent);padding:2px 7px;border-radius:8px;letter-spacing:.3px;}
+.item .tag.hot{background:#D64545;}
+.step{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
+.step button{width:34px;height:34px;border-radius:50%;border:none;background:var(--sand);color:var(--brown);font-size:21px;font-weight:800;cursor:pointer;display:grid;place-items:center;line-height:1;transition:.15s;}
+.step button.plus{background:linear-gradient(160deg,var(--accent2),var(--accent));color:#fff;box-shadow:0 6px 14px -7px rgba(232,116,59,.8);}
+.step button:active{transform:scale(.85);}
+.step .qty{min-width:22px;text-align:center;font-weight:800;font-size:17px;}
+.step button.minus{visibility:hidden;}
+.item.has button.minus{visibility:visible;}
+.item.has{border-color:var(--accent2);background:linear-gradient(160deg,#FFF6EE,#FFEDDC);box-shadow:0 10px 22px -14px rgba(232,116,59,.55);}
+.item.has .ava{background:linear-gradient(160deg,#FFE6CC,#FBD7B0);}
+
+/* ===== form ===== */
+.field{margin-bottom:13px;}
+.field:last-child{margin-bottom:0;}
+.field label{font-size:13.5px;font-weight:700;display:block;margin-bottom:6px;color:var(--brown2);}
+.field input,.field textarea,.field select{width:100%;border:1.5px solid var(--border);background:#fff;border-radius:13px;padding:13px;font-size:15px;color:var(--brown);font-family:inherit;transition:.15s;}
+.field input::placeholder,.field textarea::placeholder{color:#C7A985;}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,116,59,.14);}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23A0704A' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+
+/* ===== pay ===== */
+.qrbox{background:linear-gradient(160deg,#FFFCF7,#FFF4E5);border:1.5px solid var(--border);border-radius:18px;padding:18px;text-align:center;}
+.qrbox img{width:200px;margin:8px auto 6px;border-radius:14px;box-shadow:var(--shadow-sm);}
+.qrbox .pp{font-size:14px;color:var(--brown);font-weight:600;}
+.slip{margin-top:14px;}
+.slip-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--accent);background:#FFF1E4;color:var(--accent);border-radius:14px;padding:15px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s;}
+.slip-btn:active{transform:scale(.98);}
+.slip-prev{margin-top:12px;border-radius:12px;border:1px solid var(--border);max-height:230px;margin-inline:auto;box-shadow:var(--shadow-xs);}
+
+/* ===== bottom bar ===== */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,250,242,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border);box-shadow:0 -10px 30px -16px rgba(92,45,10,.55);}
+.barin{max-width:560px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;gap:12px;}
+.barsum{flex:1;min-width:0;}
+.barsum .n{font-size:12px;color:var(--brown2);font-weight:500;}
+.barsum .t{font-size:24px;font-weight:800;line-height:1.05;}
+.submit{flex:0 0 auto;background:linear-gradient(160deg,#37805F,#2D6A4F);color:#fff;border:none;border-radius:30px;padding:15px 26px;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px -10px rgba(45,106,79,.7);transition:.18s;}
+.submit:disabled{background:#C9BBA6;color:#fff;box-shadow:none;}
+.submit:not(:disabled):active{transform:scale(.96);}
+
+/* ===== confirm overlay ===== */
+.ov{position:fixed;inset:0;z-index:200;background:rgba(92,45,10,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;}
+.ov.show{display:flex;animation:fade .2s ease;}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.ov-card{background:var(--cream2);border-radius:26px;padding:32px 24px;text-align:center;max-width:380px;width:100%;box-shadow:var(--shadow);animation:pop .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.ov-card .big{font-size:56px;}
+.ov-card h2{font-size:25px;margin:6px 0;}
+.ov-card .qno{font-size:44px;font-weight:800;color:var(--accent);line-height:1;}
+.ov-card .meta{background:var(--cream3);border-radius:16px;padding:14px;margin:16px 0;font-size:15px;text-align:left;}
+.ov-card .meta>div{display:flex;justify-content:space-between;padding:3px 0;}
+.ov-card .meta b{color:var(--brown);}
+.ov-card p{font-size:14px;color:var(--brown2);}
+.ov-card a.line{display:inline-flex;gap:7px;align-items:center;background:#06C755;color:#fff;padding:12px 22px;border-radius:26px;font-weight:700;margin-top:16px;box-shadow:0 10px 20px -10px rgba(6,199,85,.6);}
+.ov-card button.close{margin-top:14px;background:none;border:none;color:var(--muted);font-size:14px;text-decoration:underline;cursor:pointer;}
+.hint{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.err{color:#C0392B;font-size:13.5px;margin-top:10px;font-weight:600;display:none;text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hin">
+    <img src="assets/logo.png" alt="Misuland">
+    <h1>กำแพงแสน · สั่งจองล่วงหน้า</h1>
+    <p>เลือกเมนู → เลือกรอบส่ง → โอน+แนบสลิป = คอนเฟิร์มคิวเลย 💛</p>
+    <div class="badges-row">
+      <span class="chip">🚚 ส่งถึงหอ</span>
+      <span class="chip">🔥 ทอดสดทุกออเดอร์</span>
+      <span class="chip">⏰ เลือกรอบส่งได้</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="label"><span class="ic">⏰</span>เลือกรอบส่ง <small>ของส่งถึงตามเวลานี้</small></div>
+    <div class="rounds" id="rounds"></div>
+  </section>
+
+  <section>
+    <div class="label"><span class="ic">🍞</span>เลือกเมนู <small>กด + เพื่อเพิ่มจำนวน</small></div>
+    <div id="menu"></div>
+  </section>
+
+  <section>
+    <div class="label"><span class="ic">📍</span>ข้อมูลจัดส่ง</div>
+    <div class="field"><label>ชื่อเล่น</label><input id="f-name" placeholder="เช่น มิ้น"></div>
+    <div class="field"><label>เบอร์ / LINE ติดต่อ</label><input id="f-contact" placeholder="0xx-xxx-xxxx"></div>
+    <div class="field"><label>โซนจัดส่ง 🚚 <small style="color:var(--muted);font-weight:500">(ค่าส่งคิดตามโซน)</small></label>
+      <select id="f-zone"><option value="">— เลือกโซนจัดส่ง —</option></select></div>
+    <div class="field"><label>หอ/ตึก + ห้อง (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B ห้อง 210"></div>
+    <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><textarea id="f-note" rows="2" placeholder="เช่น แจ้งสิทธิ์ลูกค้าวันแรก 25 มิ.ย."></textarea></div>
+  </section>
+
+  <section>
+    <div class="label"><span class="ic">💳</span>โอนเงิน + แนบสลิป</div>
+    <div class="qrbox">
+      <img src="assets/qr-promptpay.jpg" alt="QR PromptPay Misuland">
+      <div class="pp">PromptPay · น.ส. ภัณฑิรา สุขพรหม</div>
+      <div class="hint">สแกนโอนยอดด้านล่าง แล้วแนบสลิปเลยน้า</div>
+      <div class="slip">
+        <label class="slip-btn" for="f-slip">📎 <span id="slip-label">แนบสลิปโอน</span></label>
+        <input type="file" id="f-slip" accept="image/*" hidden>
+        <img id="slip-prev" class="slip-prev" style="display:none">
+      </div>
+    </div>
+    <div class="err" id="err"></div>
+  </section>
+
+</div>
+
+<div class="bar">
+  <div class="barin">
+    <div class="barsum">
+      <div class="n"><span id="cnt">0</span> ชิ้น · ค่าส่ง ฿<span id="ship">0</span></div>
+      <div class="t">฿<span id="total">0</span></div>
+    </div>
+    <button class="submit" id="submit" disabled>ส่งออเดอร์</button>
+  </div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="ov-card">
+    <div class="big">🎉</div>
+    <h2>รับออเดอร์แล้ว!</h2>
+    <div>คิวของคุณ</div>
+    <div class="qno">#<span id="ov-q">-</span></div>
+    <div class="meta">
+      <div><span>รอบ</span><b id="ov-round">-</b></div>
+      <div><span>ส่งถึงประมาณ</span><b id="ov-time">-</b></div>
+      <div><span>ยอดรวม (รวมค่าส่ง)</span><b>฿<span id="ov-total">-</span></b></div>
+    </div>
+    <p>ถึงรอบเดี๋ยวร้านทักไปน้า ขอบคุณค่า 🤍</p>
+    <a class="line" id="ov-line" href="#" target="_blank">💬 แอด LINE ร้าน รับคูปองส่วนลด</a>
+    <br><button class="close" id="ov-close">ปิด / สั่งเพิ่ม</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const CFG=window.MISULAND_CONFIG;
+const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+
+// ----- รอบส่ง -----
+const ROUNDS=[
+  {n:1,cut:"14:00",send:"16:00–16:45"},
+  {n:2,cut:"16:30",send:"18:00–18:45"},
+  {n:3,cut:"18:30",send:"19:45–20:30"},
+  {n:4,cut:"20:00",send:"ไม่เกิน 21:30"},
+];
+const ROUND_TIME=Object.fromEntries(ROUNDS.map(r=>[r.n,r.send]));
+
+// ----- เมนู (ขนมปังทอดเท่านั้น) -----
+const MENU=[
+  {cat:"🍞 ขนมปังทอดญี่ปุ่น", items:[
+    {name:"รสครีม (Signature)", price:30, emoji:"🍦"},
+    {name:"ช็อกโกแลต", price:40, emoji:"🍫"},
+    {name:"มัทฉะ", price:40, emoji:"🍵"},
+    {name:"คัสตาร์ดหน้าไหม้", price:40, emoji:"🍮"},
+    {name:"ช็อกกล้วย", price:40, emoji:"🍌"},
+    {name:"ครีมสตรอเบอรี่", price:40, emoji:"🍓"},
+    {name:"ช็อกโกแลตดูไบ", price:50, emoji:"💚", tag:"ใหม่"},
+    {name:"บิสคอฟครันชี่", price:40, emoji:"🍪", tag:"ใหม่"},
+  ]},
+];
+
+const ZONES=[
+  {label:"หอ VS (ส่งฟรี)", fee:0},
+  {label:"หน้า ม.เกษตร กำแพงแสน (หอพัก/ร้านค้า)", fee:10},
+  {label:"หอมาตาล/AW/นกฯ/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
+  {label:"หอในรัฐ/เอก/นานาชาติ/บุคลากร/ร้อยพฤกษา", fee:20},
+  {label:"คณะสัตวแพทย์/รพ.สัตว์/ตึกวิศวะ/สาธิต", fee:20},
+  {label:"หอพักข้างมอ/รพ.กำแพงแสน", fee:30},
+];
+const qty={}; let round=null; let slipFile=null; let roundClosed={}; let zoneFee=0;
+
+// zone select
+const zoneEl=document.getElementById('f-zone');
+ZONES.forEach((z,i)=>{const o=document.createElement('option');o.value=i;o.textContent=z.fee===0?`${z.label}`:`${z.label} (+${z.fee}฿)`;zoneEl.appendChild(o);});
+zoneEl.onchange=()=>{zoneFee=zoneEl.value===''?0:ZONES[+zoneEl.value].fee;recalc();};
+
+// render rounds
+const roundsEl=document.getElementById('rounds');
+ROUNDS.forEach(r=>{
+  const el=document.createElement('div'); el.className='round'; el.dataset.round=r.n;
+  el.innerHTML=`<b>รอบ ${r.n}</b><span>ปิดรับ ${r.cut}<br>ส่ง ${r.send}</span><div class="full" style="display:none">เต็มแล้ว</div>`;
+  el.onclick=()=>{
+    if(roundClosed[r.n]) return;
+    document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active'); round=r.n; recalc();
+  };
+  roundsEl.appendChild(el);
+});
+
+// render menu
+const menuEl=document.getElementById('menu');
+MENU.forEach(c=>{
+  const h=document.createElement('div'); h.className='cat'; h.textContent=c.cat; menuEl.appendChild(h);
+  c.items.forEach(it=>{
+    const row=document.createElement('div'); row.className='item'; row.dataset.name=it.name;
+    const tag=it.tag?`<span class="tag">${it.tag}</span>`:'';
+    row.innerHTML=`<div class="ava">${it.emoji||'🍞'}</div>
+      <div class="info"><div class="nm">${it.name}${tag}</div><div class="pr">฿${it.price}</div></div>
+      <div class="step"><button class="minus">−</button><span class="qty">0</span><button class="plus">+</button></div>`;
+    const q=row.querySelector('.qty');
+    row.querySelector('.plus').onclick=()=>{qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
+    row.querySelector('.minus').onclick=()=>{qty[it.name]=Math.max(0,(qty[it.name]||0)-1);q.textContent=qty[it.name];if(!qty[it.name])row.classList.remove('has');recalc();};
+    menuEl.appendChild(row);
+  });
+});
+
+// slip
+document.getElementById('f-slip').onchange=(e)=>{
+  slipFile=e.target.files[0]||null;
+  const prev=document.getElementById('slip-prev');
+  if(slipFile){document.getElementById('slip-label').textContent="เปลี่ยนสลิป";prev.src=URL.createObjectURL(slipFile);prev.style.display='block';}
+  recalc();
+};
+
+function buildItems(){return MENU.flatMap(c=>c.items).filter(it=>qty[it.name]>0).map(it=>({name:it.name,price:it.price,qty:qty[it.name]}));}
+function recalc(){
+  const items=buildItems();
+  const cnt=items.reduce((s,i)=>s+i.qty,0);
+  const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping=cnt>0?zoneFee:0;
+  const total=subtotal+shipping;
+  document.getElementById('cnt').textContent=cnt;
+  document.getElementById('ship').textContent=shipping;
+  document.getElementById('total').textContent=total;
+  const zoneOk=document.getElementById('f-zone').value!=='';
+  document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile&&zoneOk);
+  return {items,cnt,subtotal,shipping,total};
+}
+function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
+
+// ----- สถานะปิดรอบ (sync กับ dashboard) -----
+async function loadRoundState(){
+  const {data}=await supa.from('round_state').select('round,closed').eq('order_date',thaiDate());
+  roundClosed={}; (data||[]).forEach(r=>roundClosed[r.round]=r.closed);
+  applyRoundUI();
+}
+function applyRoundUI(){
+  document.querySelectorAll('.round').forEach(el=>{
+    const n=+el.dataset.round, closed=!!roundClosed[n];
+    el.classList.toggle('closed',closed);
+    el.querySelector('.full').style.display=closed?'flex':'none';
+    if(closed && round===n){ round=null; el.classList.remove('active'); recalc(); }
+  });
+}
+supa.channel('rs-rt').on('postgres_changes',{event:'*',schema:'public',table:'round_state'},payload=>{
+  const rec=payload.new||payload.old;
+  if(rec && rec.order_date===thaiDate()){ roundClosed[rec.round]=rec.closed; applyRoundUI(); }
+}).subscribe();
+loadRoundState();
+
+// submit
+document.getElementById('submit').onclick=async()=>{
+  const btn=document.getElementById('submit');
+  const {items,cnt,subtotal,shipping,total}=recalc();
+  const name=document.getElementById('f-name').value.trim();
+  const contact=document.getElementById('f-contact').value.trim();
+  const room=document.getElementById('f-dorm').value.trim();
+  const zoneIdx=document.getElementById('f-zone').value;
+  const note=document.getElementById('f-note').value.trim();
+  document.getElementById('err').style.display='none';
+  if(!round) return showErr("เลือกรอบส่งก่อนน้า");
+  if(roundClosed[round]) return showErr("รอบนี้เต็มแล้ว เลือกรอบอื่นน้า");
+  if(cnt<1) return showErr("ยังไม่ได้เลือกเมนูเลย");
+  if(zoneIdx==='') return showErr("เลือกโซนจัดส่งก่อนน้า");
+  if(!name||!contact||!room) return showErr("กรอกชื่อ/เบอร์/หอ-ห้องให้ครบน้า");
+  if(!slipFile) return showErr("แนบสลิปโอนด้วยน้า");
+  const dorm=ZONES[+zoneIdx].label+" • "+room;
+
+  btn.disabled=true; btn.textContent="กำลังส่ง...";
+  try{
+    const ext=(slipFile.name.split('.').pop()||'jpg').toLowerCase();
+    const path=`${thaiDate()}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
+    const up=await supa.storage.from('slips').upload(path,slipFile,{contentType:slipFile.type});
+    if(up.error) throw up.error;
+    const slip_url=supa.storage.from('slips').getPublicUrl(path).data.publicUrl;
+
+    const order_date=thaiDate();
+    const ins=await supa.from('orders').insert({order_date,round,name,contact,dorm,items,total,shipping,slip_url,note}).select().single();
+    if(ins.error) throw ins.error;
+
+    const cntRes=await supa.from('orders').select('id',{count:'exact',head:true})
+      .eq('order_date',order_date).eq('round',round).lte('created_at',ins.data.created_at);
+    const qno=cntRes.count||1;
+
+    document.getElementById('ov-q').textContent=qno;
+    document.getElementById('ov-round').textContent=round;
+    document.getElementById('ov-time').textContent=ROUND_TIME[round];
+    document.getElementById('ov-total').textContent=total;
+    document.getElementById('ov-line').href=CFG.LINE_OA_URL;
+    document.getElementById('ov').classList.add('show');
+  }catch(err){
+    console.error(err);
+    showErr("ส่งไม่สำเร็จ: "+(err.message||err)+" — ลองใหม่อีกครั้งน้า");
+    btn.disabled=false; btn.textContent="ส่งออเดอร์";
+  }
+};
+
+document.getElementById('ov-close').onclick=()=>{
+  document.getElementById('ov').classList.remove('show');
+  Object.keys(qty).forEach(k=>qty[k]=0);
+  document.querySelectorAll('.qty').forEach(q=>q.textContent='0');
+  document.querySelectorAll('.item').forEach(i=>i.classList.remove('has'));
+  document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
+  round=null; slipFile=null; zoneFee=0;
+  document.getElementById('f-slip').value=''; document.getElementById('slip-prev').style.display='none';
+  document.getElementById('slip-label').textContent='แนบสลิปโอน';
+  document.getElementById('f-zone').value='';
+  document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-dorm').value=''; document.getElementById('f-note').value='';
+  const b=document.getElementById('submit'); b.textContent='ส่งออเดอร์'; b.disabled=true;
+  recalc(); window.scrollTo({top:0,behavior:'smooth'});
+};
+</script>
+</body>
+</html>
