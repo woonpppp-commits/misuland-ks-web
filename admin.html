@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard ออเดอร์ — Misuland กำแพงแสน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Thai+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5E6C8;--cream2:#FFF8EE;--cream3:#FBEFD6;--sand:#F0DDB8;--brown:#5C2D0A;--brown2:#7A4A20;--muted:#A0704A;--accent:#E8743B;--green:#2D6A4F;--border:#E8CDAA;--shadow-sm:0 6px 16px -8px rgba(92,45,10,.4);}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Baloo Thai 2',system-ui,sans-serif;}
+body{background:var(--cream);color:var(--brown);padding-bottom:40px;}
+.wrap{max-width:920px;margin:0 auto;padding:0 14px;}
+header{background:linear-gradient(160deg,var(--brown),var(--brown2));color:#fff;padding:16px 0;position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm);}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+header h1{font-size:18px;color:#fff;}
+header .live{font-size:12px;background:#2D6A4F;padding:3px 9px;border-radius:12px;}
+header input[type=date]{margin-left:auto;border:none;border-radius:10px;padding:7px 10px;font-family:inherit;font-size:14px;}
+header button#reload{border:none;border-radius:10px;padding:7px 12px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;}
+
+/* gate */
+#gate{position:fixed;inset:0;background:var(--brown);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:14px;color:#fff;padding:20px;text-align:center;}
+#gate input{padding:12px 16px;border-radius:12px;border:none;font-size:16px;font-family:inherit;text-align:center;}
+#gate button{padding:11px 28px;border-radius:24px;border:none;background:var(--accent);color:#fff;font-weight:800;font-size:15px;cursor:pointer;}
+
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+.sum{background:var(--cream2);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
+.sum b{display:block;font-size:13px;color:var(--accent);}
+.sum .c{font-size:24px;font-weight:800;}
+.sum .m{font-size:12px;color:var(--brown2);}
+
+.roundhdr{margin:20px 0 8px;font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.roundhdr span{font-size:13px;color:var(--muted);font-weight:500;}
+.empty{color:var(--muted);font-size:14px;padding:10px 0;}
+
+.order{background:var(--cream2);border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
+.order.s-ยกเลิก{opacity:.5;}
+.order .q{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--sand);display:grid;place-items:center;font-weight:800;font-size:18px;color:var(--brown);}
+.order .body{flex:1;min-width:0;}
+.order .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.order .who{font-weight:700;font-size:15.5px;}
+.order .tot{font-weight:800;font-size:16px;color:var(--green);}
+.order .dorm{font-size:13.5px;color:var(--brown2);}
+.order .items{font-size:13.5px;margin:6px 0;line-height:1.6;}
+.order .note{font-size:13px;color:var(--accent);}
+.order .row2{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.order .row2 a.slip{font-size:13px;color:#fff;background:var(--brown2);padding:5px 12px;border-radius:14px;text-decoration:none;}
+.order select{font-family:inherit;font-size:13.5px;border:1.5px solid var(--border);border-radius:12px;padding:6px 10px;background:#fff;color:var(--brown);font-weight:600;}
+.order .ct{font-size:12.5px;color:var(--muted);}
+.badge{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:12px;}
+.b-รอตรวจสลิป{background:#FDEBD0;color:#B9770E;}
+.b-ยืนยันแล้ว{background:#D4EFDF;color:#1E8449;}
+.b-กำลังทำ{background:#D6EAF8;color:#2471A3;}
+.b-ส่งแล้ว{background:#D5DBDB;color:#566573;}
+.b-ยกเลิก{background:#FADBD8;color:#922B21;}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div style="font-size:40px">🔒</div>
+  <div>Dashboard ร้าน — ใส่รหัสผ่าน</div>
+  <input id="pass" type="password" placeholder="รหัสผ่าน" autocomplete="off">
+  <button id="enter">เข้าสู่ระบบ</button>
+</div>
+
+<header>
+  <div class="wrap">
+    <h1>🍞 ออเดอร์กำแพงแสน</h1>
+    <span class="live" id="live">● realtime</span>
+    <input type="date" id="date">
+    <button id="reload">รีเฟรช</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="summary" id="summary"></div>
+  <div id="board"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const CFG=window.MISULAND_CONFIG;
+const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30"};
+const STATUSES=["รอตรวจสลิป","ยืนยันแล้ว","กำลังทำ","ส่งแล้ว","ยกเลิก"];
+
+// gate
+document.getElementById('enter').onclick=tryPass;
+document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryPass();});
+function tryPass(){
+  if(document.getElementById('pass').value===CFG.ADMIN_PASSCODE){ document.getElementById('gate').style.display='none'; init(); }
+  else { document.getElementById('pass').value=''; document.getElementById('pass').placeholder='รหัสผิด ลองใหม่'; }
+}
+
+function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
+const dateEl=document.getElementById('date');
+
+let rows=[];
+async function load(){
+  const d=dateEl.value||thaiDate();
+  const {data,error}=await supa.from('orders').select('*').eq('order_date',d).order('created_at',{ascending:true});
+  if(error){ document.getElementById('board').innerHTML='<div class="empty">โหลดไม่ได้: '+error.message+'</div>'; return; }
+  rows=data||[]; render();
+}
+function fmtTime(ts){const d=new Date(ts);return d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});}
+
+function render(){
+  // summary
+  const sumEl=document.getElementById('summary'); sumEl.innerHTML='';
+  [1,2,3].forEach(r=>{
+    const rs=rows.filter(o=>o.round===r && o.status!=='ยกเลิก');
+    const cnt=rs.length, baht=rs.reduce((s,o)=>s+o.total,0);
+    sumEl.innerHTML+=`<div class="sum"><b>รอบ ${r}</b><div class="c">${cnt}</div><div class="m">฿${baht} · ${ROUND_TIME[r]}</div></div>`;
+  });
+  // board
+  const board=document.getElementById('board'); board.innerHTML='';
+  [1,2,3].forEach(r=>{
+    const rs=rows.filter(o=>o.round===r);
+    const h=document.createElement('div');
+    h.innerHTML=`<div class="roundhdr">รอบ ${r} <span>(${ROUND_TIME[r]})</span></div>`;
+    board.appendChild(h);
+    if(!rs.length){ board.insertAdjacentHTML('beforeend','<div class="empty">— ยังไม่มีออเดอร์ —</div>'); return; }
+    rs.forEach((o,i)=>board.appendChild(orderCard(o,i+1)));
+  });
+}
+
+function orderCard(o,qno){
+  const el=document.createElement('div'); el.className='order s-'+o.status;
+  const itemsTxt=o.items.map(it=>`${it.name} ×${it.qty}`).join(' · ');
+  const opts=STATUSES.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('');
+  el.innerHTML=`
+    <div class="q">#${qno}</div>
+    <div class="body">
+      <div class="top"><div class="who">${esc(o.name)} <span class="badge b-${o.status}">${o.status}</span></div><div class="tot">฿${o.total}</div></div>
+      <div class="dorm">📍 ${esc(o.dorm)} · 📞 ${esc(o.contact)}</div>
+      <div class="items">${esc(itemsTxt)}</div>
+      ${o.note?`<div class="note">📝 ${esc(o.note)}</div>`:''}
+      <div class="row2">
+        ${o.slip_url?`<a class="slip" href="${o.slip_url}" target="_blank">🧾 ดูสลิป</a>`:'<span class="ct">ไม่มีสลิป</span>'}
+        <select>${opts}</select>
+        <span class="ct">⏱ ${fmtTime(o.created_at)}</span>
+      </div>
+    </div>`;
+  el.querySelector('select').onchange=async(e)=>{
+    const ns=e.target.value;
+    await supa.from('orders').update({status:ns}).eq('id',o.id);
+    o.status=ns; render();
+  };
+  return el;
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function init(){
+  dateEl.value=thaiDate();
+  load();
+  dateEl.onchange=load;
+  document.getElementById('reload').onclick=load;
+  // realtime
+  supa.channel('orders-rt').on('postgres_changes',{event:'*',schema:'public',table:'orders'},payload=>{
+    const d=dateEl.value||thaiDate();
+    const rec=payload.new||payload.old;
+    if(rec && rec.order_date===d) load();
+    const live=document.getElementById('live'); live.textContent='● ออเดอร์ใหม่!'; setTimeout(()=>live.textContent='● realtime',2500);
+  }).subscribe();
+}
+</script>
+</body>
+</html>
