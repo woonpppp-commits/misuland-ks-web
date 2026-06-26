@@ -55,8 +55,8 @@ section{margin-top:22px;}
 /* form */
 .field{margin-bottom:12px;}
 .field label{font-size:14px;font-weight:600;display:block;margin-bottom:5px;}
-.field input,.field textarea{width:100%;border:1.5px solid var(--border);background:var(--cream2);border-radius:12px;padding:12px;font-size:15px;color:var(--brown);}
-.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);}
+.field input,.field textarea,.field select{width:100%;border:1.5px solid var(--border);background:var(--cream2);border-radius:12px;padding:12px;font-size:15px;color:var(--brown);font-family:inherit;}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);}
 
 /* pay */
 .qrbox{background:var(--cream2);border:1px solid var(--border);border-radius:18px;padding:16px;text-align:center;}
@@ -118,7 +118,9 @@ section{margin-top:22px;}
     <div class="label">📍 ข้อมูลจัดส่ง</div>
     <div class="field"><label>ชื่อเล่น</label><input id="f-name" placeholder="เช่น มิ้น"></div>
     <div class="field"><label>เบอร์ / LINE ติดต่อ</label><input id="f-contact" placeholder="0xx-xxx-xxxx"></div>
-    <div class="field"><label>จุดรับ (หอ/ตึก + ห้อง)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ห้อง 210"></div>
+    <div class="field"><label>โซนจัดส่ง 🚚 <small style="color:var(--muted);font-weight:500">(ค่าส่งคิดตามโซน)</small></label>
+      <select id="f-zone"><option value="">— เลือกโซนจัดส่ง —</option></select></div>
+    <div class="field"><label>หอ/ตึก + ห้อง (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B ห้อง 210"></div>
     <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><textarea id="f-note" rows="2" placeholder="เช่น แจ้งสิทธิ์ลูกค้าวันแรก 25 มิ.ย."></textarea></div>
   </section>
 
@@ -142,7 +144,7 @@ section{margin-top:22px;}
 <div class="bar">
   <div class="barin">
     <div class="barsum">
-      <div class="n"><span id="cnt">0</span> ชิ้น</div>
+      <div class="n"><span id="cnt">0</span> ชิ้น · ค่าส่ง ฿<span id="ship">0</span></div>
       <div class="t">฿<span id="total">0</span></div>
     </div>
     <button class="submit" id="submit" disabled>ส่งออเดอร์</button>
@@ -158,7 +160,7 @@ section{margin-top:22px;}
     <div class="meta">
       <div>รอบ <b id="ov-round">-</b></div>
       <div>ส่งถึงประมาณ <b id="ov-time">-</b></div>
-      <div>ยอดรวม <b>฿<span id="ov-total">-</span></b></div>
+      <div>ยอดรวม (รวมค่าส่ง) <b>฿<span id="ov-total">-</span></b></div>
     </div>
     <p>ถึงรอบเดี๋ยวร้านทักไปน้า ขอบคุณค่า 🤍</p>
     <a class="line" id="ov-line" href="#" target="_blank">💬 แอด LINE ร้าน รับคูปองส่วนลด</a>
@@ -178,26 +180,37 @@ const ROUNDS=[
   {n:2,cut:"16:30",send:"18:00–18:45"},
   {n:3,cut:"18:30",send:"19:45–20:30"},
   {n:4,cut:"20:00",send:"ไม่เกิน 21:30"},
-  {n:5,cut:"21:00",send:"ไม่เกิน 22:30"},
 ];
 const ROUND_TIME=Object.fromEntries(ROUNDS.map(r=>[r.n,r.send]));
 
 // ----- เมนู (ขนมปังทอดเท่านั้น) -----
 const MENU=[
   {cat:"🍞 ขนมปังทอดญี่ปุ่น", items:[
-    {name:"รสครีม (Signature)", price:35},
+    {name:"รสครีม (Signature)", price:30},
     {name:"ทิรามิสุ", price:40},
     {name:"ช็อกโกแลต", price:40},
     {name:"มัทฉะ", price:40},
     {name:"คัสตาร์ดหน้าไหม้", price:40},
-    {name:"ครีมบลูเบอรี่", price:49},
-    {name:"ช็อกกล้วย", price:49},
-    {name:"ครีมสตรอเบอรี่", price:49},
-    {name:"ครีมส้ม", price:49},
+    {name:"ครีมบลูเบอรี่", price:40},
+    {name:"ช็อกกล้วย", price:40},
+    {name:"ครีมสตรอเบอรี่", price:40},
+    {name:"ครีมส้ม", price:40},
   ]},
 ];
 
-const qty={}; let round=null; let slipFile=null; let roundClosed={};
+const ZONES=[
+  {label:"หน้า ม.เกษตร กำแพงแสน (หอพัก/ร้านค้า)", fee:10},
+  {label:"หอมาตาล/AW/นกฯ/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
+  {label:"หอในรัฐ/เอก/นานาชาติ/บุคลากร/ร้อยพฤกษา", fee:20},
+  {label:"คณะสัตวแพทย์/รพ.สัตว์/ตึกวิศวะ/สาธิต", fee:20},
+  {label:"หอพักข้างมอ/รพ.กำแพงแสน", fee:30},
+];
+const qty={}; let round=null; let slipFile=null; let roundClosed={}; let zoneFee=0;
+
+// zone select
+const zoneEl=document.getElementById('f-zone');
+ZONES.forEach((z,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`${z.label} (+${z.fee}฿)`;zoneEl.appendChild(o);});
+zoneEl.onchange=()=>{zoneFee=zoneEl.value===''?0:ZONES[+zoneEl.value].fee;recalc();};
 
 // render rounds
 const roundsEl=document.getElementById('rounds');
@@ -239,11 +252,15 @@ function buildItems(){return MENU.flatMap(c=>c.items).filter(it=>qty[it.name]>0)
 function recalc(){
   const items=buildItems();
   const cnt=items.reduce((s,i)=>s+i.qty,0);
-  const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping=cnt>0?zoneFee:0;
+  const total=subtotal+shipping;
   document.getElementById('cnt').textContent=cnt;
+  document.getElementById('ship').textContent=shipping;
   document.getElementById('total').textContent=total;
-  document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile);
-  return {items,cnt,total};
+  const zoneOk=document.getElementById('f-zone').value!=='';
+  document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile&&zoneOk);
+  return {items,cnt,subtotal,shipping,total};
 }
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
@@ -271,17 +288,20 @@ loadRoundState();
 // submit
 document.getElementById('submit').onclick=async()=>{
   const btn=document.getElementById('submit');
-  const {items,cnt,total}=recalc();
+  const {items,cnt,subtotal,shipping,total}=recalc();
   const name=document.getElementById('f-name').value.trim();
   const contact=document.getElementById('f-contact').value.trim();
-  const dorm=document.getElementById('f-dorm').value.trim();
+  const room=document.getElementById('f-dorm').value.trim();
+  const zoneIdx=document.getElementById('f-zone').value;
   const note=document.getElementById('f-note').value.trim();
   document.getElementById('err').style.display='none';
   if(!round) return showErr("เลือกรอบส่งก่อนน้า");
   if(roundClosed[round]) return showErr("รอบนี้เต็มแล้ว เลือกรอบอื่นน้า");
   if(cnt<1) return showErr("ยังไม่ได้เลือกเมนูเลย");
-  if(!name||!contact||!dorm) return showErr("กรอกชื่อ/เบอร์/จุดรับให้ครบน้า");
+  if(zoneIdx==='') return showErr("เลือกโซนจัดส่งก่อนน้า");
+  if(!name||!contact||!room) return showErr("กรอกชื่อ/เบอร์/หอ-ห้องให้ครบน้า");
   if(!slipFile) return showErr("แนบสลิปโอนด้วยน้า");
+  const dorm=ZONES[+zoneIdx].label+" • "+room;
 
   btn.disabled=true; btn.textContent="กำลังส่ง...";
   try{
@@ -292,7 +312,7 @@ document.getElementById('submit').onclick=async()=>{
     const slip_url=supa.storage.from('slips').getPublicUrl(path).data.publicUrl;
 
     const order_date=thaiDate();
-    const ins=await supa.from('orders').insert({order_date,round,name,contact,dorm,items,total,slip_url,note}).select().single();
+    const ins=await supa.from('orders').insert({order_date,round,name,contact,dorm,items,total,shipping,slip_url,note}).select().single();
     if(ins.error) throw ins.error;
 
     const cntRes=await supa.from('orders').select('id',{count:'exact',head:true})
@@ -318,9 +338,10 @@ document.getElementById('ov-close').onclick=()=>{
   document.querySelectorAll('.qty').forEach(q=>q.textContent='0');
   document.querySelectorAll('.item').forEach(i=>i.classList.remove('has'));
   document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
-  round=null; slipFile=null;
+  round=null; slipFile=null; zoneFee=0;
   document.getElementById('f-slip').value=''; document.getElementById('slip-prev').style.display='none';
   document.getElementById('slip-label').textContent='แนบสลิปโอน';
+  document.getElementById('f-zone').value='';
   document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-dorm').value=''; document.getElementById('f-note').value='';
   const b=document.getElementById('submit'); b.textContent='ส่งออเดอร์'; b.disabled=true;
   recalc(); window.scrollTo({top:0,behavior:'smooth'});

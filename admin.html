@@ -89,14 +89,34 @@ header button#reload{border:none;border-radius:10px;padding:7px 12px;background:
 <script>
 const CFG=window.MISULAND_CONFIG;
 const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
-const ROUNDS=[1,2,3,4,5];
-const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30",5:"ไม่เกิน 22:30"};
+const ROUNDS=[1,2,3,4];
+const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30"};
+let _ac=null; // audio context สำหรับเสียงแจ้งเตือน
+function beep(){
+  try{
+    _ac=_ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(_ac.state==='suspended') _ac.resume();
+    const t0=_ac.currentTime;
+    [[0,880],[0.18,1175]].forEach(([t,f])=>{
+      const o=_ac.createOscillator(),g=_ac.createGain();
+      o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(_ac.destination);
+      g.gain.setValueAtTime(0.0001,t0+t);
+      g.gain.exponentialRampToValueAtTime(0.35,t0+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+t+0.16);
+      o.start(t0+t); o.stop(t0+t+0.18);
+    });
+  }catch(e){console.warn('beep failed',e);}
+}
 const STATUSES=["รอตรวจสลิป","ยืนยันแล้ว","กำลังทำ","ส่งแล้ว","ยกเลิก"];
 
 document.getElementById('enter').onclick=tryPass;
 document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryPass();});
 function tryPass(){
-  if(document.getElementById('pass').value===CFG.ADMIN_PASSCODE){document.getElementById('gate').style.display='none';init();}
+  if(document.getElementById('pass').value===CFG.ADMIN_PASSCODE){
+    document.getElementById('gate').style.display='none';
+    try{_ac=_ac||new (window.AudioContext||window.webkitAudioContext)();}catch(e){} // warm-up เสียง (ต้องมาจาก user gesture)
+    init();
+  }
   else{document.getElementById('pass').value='';document.getElementById('pass').placeholder='รหัสผิด ลองใหม่';}
 }
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
@@ -155,6 +175,7 @@ function orderCard(o,qno){
       <div class="top"><div class="who">${esc(o.name)} <span class="badge b-${o.status}">${o.status}</span></div><div class="tot">฿${o.total}</div></div>
       <div class="dorm">📍 ${esc(o.dorm)} · 📞 ${esc(o.contact)}</div>
       <div class="items">${esc(itemsTxt)}</div>
+      <div class="ct">🚚 ค่าส่ง ฿${o.shipping||0} · ยอดโอนรวม ฿${o.total}</div>
       ${o.note?`<div class="note">📝 ${esc(o.note)}</div>`:''}
       <div class="row2">
         ${o.slip_url?`<a class="slip" href="${o.slip_url}" target="_blank">🧾 ดูสลิป</a>`:'<span class="ct">ไม่มีสลิป</span>'}
@@ -181,8 +202,12 @@ function init(){
   function flash(payload){
     const d=dateEl.value||thaiDate();
     const rec=payload.new||payload.old;
+    const isNew=payload.eventType==='INSERT'&&payload.table==='orders'&&rec&&rec.order_date===d;
     if(rec && rec.order_date===d) load();
-    const live=document.getElementById('live'); live.textContent='● อัปเดต!'; setTimeout(()=>live.textContent='● realtime',2500);
+    const live=document.getElementById('live');
+    if(isNew){ beep(); live.textContent='🔔 ออเดอร์ใหม่!'; }
+    else live.textContent='● อัปเดต!';
+    setTimeout(()=>live.textContent='● realtime',2800);
   }
 }
 </script>
