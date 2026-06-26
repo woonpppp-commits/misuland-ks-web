@@ -11,30 +11,36 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Baloo Thai 2',system-ui,sans-serif;}
 body{background:var(--cream);color:var(--brown);padding-bottom:40px;}
 .wrap{max-width:920px;margin:0 auto;padding:0 14px;}
-header{background:linear-gradient(160deg,var(--brown),var(--brown2));color:#fff;padding:16px 0;position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm);}
-header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+header{background:linear-gradient(160deg,var(--brown),var(--brown2));color:#fff;padding:14px 0;position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm);}
+header .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 header h1{font-size:18px;color:#fff;}
 header .live{font-size:12px;background:#2D6A4F;padding:3px 9px;border-radius:12px;}
 header input[type=date]{margin-left:auto;border:none;border-radius:10px;padding:7px 10px;font-family:inherit;font-size:14px;}
 header button#reload{border:none;border-radius:10px;padding:7px 12px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;}
 
-/* gate */
 #gate{position:fixed;inset:0;background:var(--brown);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:14px;color:#fff;padding:20px;text-align:center;}
 #gate input{padding:12px 16px;border-radius:12px;border:none;font-size:16px;font-family:inherit;text-align:center;}
 #gate button{padding:11px 28px;border-radius:24px;border:none;background:var(--accent);color:#fff;font-weight:800;font-size:15px;cursor:pointer;}
 
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:10px;margin:16px 0;}
 .sum{background:var(--cream2);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
+.sum.closed{background:#F2E3DF;border-color:#E0B4AC;}
 .sum b{display:block;font-size:13px;color:var(--accent);}
 .sum .c{font-size:24px;font-weight:800;}
-.sum .m{font-size:12px;color:var(--brown2);}
+.sum .m{font-size:11.5px;color:var(--brown2);}
 
-.roundhdr{margin:20px 0 8px;font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;}
-.roundhdr span{font-size:13px;color:var(--muted);font-weight:500;}
+.roundhdr{margin:20px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.roundhdr .t{font-size:17px;font-weight:800;}
+.roundhdr .tm{font-size:13px;color:var(--muted);}
+.roundhdr .toggle{margin-left:auto;border:none;border-radius:20px;padding:7px 16px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;}
+.toggle.open{background:#FADBD8;color:#922B21;}
+.toggle.closed{background:#D4EFDF;color:#1E8449;}
+.pill-closed{font-size:11.5px;font-weight:700;background:#922B21;color:#fff;padding:2px 9px;border-radius:12px;}
 .empty{color:var(--muted);font-size:14px;padding:10px 0;}
 
 .order{background:var(--cream2);border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
 .order.s-ยกเลิก{opacity:.5;}
+.order.s-ส่งแล้ว{opacity:.7;}
 .order .q{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--sand);display:grid;place-items:center;font-weight:800;font-size:18px;color:var(--brown);}
 .order .body{flex:1;min-width:0;}
 .order .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
@@ -44,8 +50,8 @@ header button#reload{border:none;border-radius:10px;padding:7px 12px;background:
 .order .items{font-size:13.5px;margin:6px 0;line-height:1.6;}
 .order .note{font-size:13px;color:var(--accent);}
 .order .row2{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
-.order .row2 a.slip{font-size:13px;color:#fff;background:var(--brown2);padding:5px 12px;border-radius:14px;text-decoration:none;}
-.order select{font-family:inherit;font-size:13.5px;border:1.5px solid var(--border);border-radius:12px;padding:6px 10px;background:#fff;color:var(--brown);font-weight:600;}
+.order .row2 a.slip{font-size:13px;color:#fff;background:var(--brown2);padding:6px 13px;border-radius:14px;text-decoration:none;}
+.order select{font-family:inherit;font-size:14px;border:1.5px solid var(--border);border-radius:12px;padding:7px 10px;background:#fff;color:var(--brown);font-weight:700;}
 .order .ct{font-size:12.5px;color:var(--muted);}
 .badge{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:12px;}
 .b-รอตรวจสลิป{background:#FDEBD0;color:#B9770E;}
@@ -83,45 +89,58 @@ header button#reload{border:none;border-radius:10px;padding:7px 12px;background:
 <script>
 const CFG=window.MISULAND_CONFIG;
 const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
-const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30"};
+const ROUNDS=[1,2,3,4,5];
+const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30",5:"ไม่เกิน 22:30"};
 const STATUSES=["รอตรวจสลิป","ยืนยันแล้ว","กำลังทำ","ส่งแล้ว","ยกเลิก"];
 
-// gate
 document.getElementById('enter').onclick=tryPass;
 document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryPass();});
 function tryPass(){
-  if(document.getElementById('pass').value===CFG.ADMIN_PASSCODE){ document.getElementById('gate').style.display='none'; init(); }
-  else { document.getElementById('pass').value=''; document.getElementById('pass').placeholder='รหัสผิด ลองใหม่'; }
+  if(document.getElementById('pass').value===CFG.ADMIN_PASSCODE){document.getElementById('gate').style.display='none';init();}
+  else{document.getElementById('pass').value='';document.getElementById('pass').placeholder='รหัสผิด ลองใหม่';}
 }
-
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 const dateEl=document.getElementById('date');
 
-let rows=[];
+let rows=[]; let roundClosed={};
 async function load(){
   const d=dateEl.value||thaiDate();
-  const {data,error}=await supa.from('orders').select('*').eq('order_date',d).order('created_at',{ascending:true});
-  if(error){ document.getElementById('board').innerHTML='<div class="empty">โหลดไม่ได้: '+error.message+'</div>'; return; }
-  rows=data||[]; render();
+  const [o,rs]=await Promise.all([
+    supa.from('orders').select('*').eq('order_date',d).order('created_at',{ascending:true}),
+    supa.from('round_state').select('round,closed').eq('order_date',d),
+  ]);
+  if(o.error){document.getElementById('board').innerHTML='<div class="empty">โหลดไม่ได้: '+o.error.message+'</div>';return;}
+  rows=o.data||[]; roundClosed={}; (rs.data||[]).forEach(r=>roundClosed[r.round]=r.closed);
+  render();
 }
-function fmtTime(ts){const d=new Date(ts);return d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});}
+
+async function toggleRound(r){
+  const d=dateEl.value||thaiDate();
+  const next=!roundClosed[r];
+  roundClosed[r]=next; render();
+  const {error}=await supa.from('round_state').upsert({order_date:d,round:r,closed:next},{onConflict:'order_date,round'});
+  if(error){alert('เปลี่ยนสถานะรอบไม่สำเร็จ: '+error.message); roundClosed[r]=!next; render();}
+}
 
 function render(){
-  // summary
   const sumEl=document.getElementById('summary'); sumEl.innerHTML='';
-  [1,2,3].forEach(r=>{
-    const rs=rows.filter(o=>o.round===r && o.status!=='ยกเลิก');
+  ROUNDS.forEach(r=>{
+    const rs=rows.filter(o=>o.round===r&&o.status!=='ยกเลิก');
     const cnt=rs.length, baht=rs.reduce((s,o)=>s+o.total,0);
-    sumEl.innerHTML+=`<div class="sum"><b>รอบ ${r}</b><div class="c">${cnt}</div><div class="m">฿${baht} · ${ROUND_TIME[r]}</div></div>`;
+    sumEl.innerHTML+=`<div class="sum ${roundClosed[r]?'closed':''}"><b>รอบ ${r}${roundClosed[r]?' 🔒':''}</b><div class="c">${cnt}</div><div class="m">฿${baht}</div></div>`;
   });
-  // board
   const board=document.getElementById('board'); board.innerHTML='';
-  [1,2,3].forEach(r=>{
+  ROUNDS.forEach(r=>{
     const rs=rows.filter(o=>o.round===r);
-    const h=document.createElement('div');
-    h.innerHTML=`<div class="roundhdr">รอบ ${r} <span>(${ROUND_TIME[r]})</span></div>`;
-    board.appendChild(h);
-    if(!rs.length){ board.insertAdjacentHTML('beforeend','<div class="empty">— ยังไม่มีออเดอร์ —</div>'); return; }
+    const closed=!!roundClosed[r];
+    const hdr=document.createElement('div'); hdr.className='roundhdr';
+    hdr.innerHTML=`<span class="t">รอบ ${r}</span><span class="tm">${ROUND_TIME[r]}</span>
+      ${closed?'<span class="pill-closed">ปิดรับแล้ว</span>':''}
+      <button class="toggle ${closed?'closed':'open'}">${closed?'↻ เปิดรอบ':'⛔ ปิดรอบ'}</button>`;
+    hdr.querySelector('.toggle').onclick=()=>toggleRound(r);
+    board.appendChild(hdr);
+    if(!rs.length){board.insertAdjacentHTML('beforeend','<div class="empty">— ยังไม่มีออเดอร์ —</div>');return;}
     rs.forEach((o,i)=>board.appendChild(orderCard(o,i+1)));
   });
 }
@@ -145,7 +164,8 @@ function orderCard(o,qno){
     </div>`;
   el.querySelector('select').onchange=async(e)=>{
     const ns=e.target.value;
-    await supa.from('orders').update({status:ns}).eq('id',o.id);
+    const {error}=await supa.from('orders').update({status:ns}).eq('id',o.id);
+    if(error){alert('อัปเดตไม่สำเร็จ: '+error.message);return;}
     o.status=ns; render();
   };
   return el;
@@ -153,17 +173,17 @@ function orderCard(o,qno){
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 function init(){
-  dateEl.value=thaiDate();
-  load();
+  dateEl.value=thaiDate(); load();
   dateEl.onchange=load;
   document.getElementById('reload').onclick=load;
-  // realtime
-  supa.channel('orders-rt').on('postgres_changes',{event:'*',schema:'public',table:'orders'},payload=>{
+  supa.channel('rt').on('postgres_changes',{event:'*',schema:'public',table:'orders'},flash)
+    .on('postgres_changes',{event:'*',schema:'public',table:'round_state'},flash).subscribe();
+  function flash(payload){
     const d=dateEl.value||thaiDate();
     const rec=payload.new||payload.old;
     if(rec && rec.order_date===d) load();
-    const live=document.getElementById('live'); live.textContent='● ออเดอร์ใหม่!'; setTimeout(()=>live.textContent='● realtime',2500);
-  }).subscribe();
+    const live=document.getElementById('live'); live.textContent='● อัปเดต!'; setTimeout(()=>live.textContent='● realtime',2500);
+  }
 }
 </script>
 </body>

@@ -19,7 +19,6 @@ body{background:var(--cream);color:var(--brown);line-height:1.5;padding-bottom:9
 img{max-width:100%;display:block;}
 .wrap{max-width:560px;margin:0 auto;padding:0 16px;}
 
-/* header */
 header{background:linear-gradient(160deg,var(--brown),var(--brown2));color:var(--cream);padding:20px 0 22px;text-align:center;border-radius:0 0 26px 26px;box-shadow:var(--shadow);}
 header img{height:40px;margin:0 auto 8px;filter:brightness(0) invert(1);}
 header h1{font-size:21px;color:#fff;}
@@ -30,11 +29,13 @@ section{margin-top:22px;}
 .label small{font-weight:500;font-size:12.5px;color:var(--muted);}
 
 /* rounds */
-.rounds{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.round{background:var(--cream2);border:2px solid var(--border);border-radius:16px;padding:12px 6px;text-align:center;cursor:pointer;transition:.18s;}
+.rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;}
+.round{background:var(--cream2);border:2px solid var(--border);border-radius:16px;padding:11px 5px;text-align:center;cursor:pointer;transition:.18s;position:relative;}
 .round.active{border-color:var(--accent);background:#FFF1E4;box-shadow:var(--shadow-sm);}
 .round b{font-size:15px;display:block;}
 .round span{font-size:11px;color:var(--brown2);display:block;line-height:1.35;margin-top:3px;}
+.round.closed{opacity:.55;cursor:not-allowed;background:#EFE6D6;}
+.round.closed .full{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(146,43,33,.86);color:#fff;font-weight:800;font-size:14px;border-radius:14px;}
 
 /* menu */
 .cat{font-weight:700;font-size:14px;color:var(--accent);margin:16px 0 8px;}
@@ -103,23 +104,16 @@ section{margin-top:22px;}
 
 <div class="wrap">
 
-  <!-- รอบส่ง -->
   <section>
     <div class="label">⏰ เลือกรอบส่ง <small>ของส่งถึงตามเวลานี้</small></div>
-    <div class="rounds" id="rounds">
-      <div class="round" data-round="1"><b>รอบ 1</b><span>ปิดรับ 14:00<br>ส่ง 16:00–16:45</span></div>
-      <div class="round" data-round="2"><b>รอบ 2</b><span>ปิดรับ 16:30<br>ส่ง 18:00–18:45</span></div>
-      <div class="round" data-round="3"><b>รอบ 3</b><span>ปิดรับ 18:30<br>ส่ง 19:45–20:30</span></div>
-    </div>
+    <div class="rounds" id="rounds"></div>
   </section>
 
-  <!-- เมนู -->
   <section>
     <div class="label">🍞 เลือกเมนู <small>กด + เพื่อเพิ่มจำนวน</small></div>
     <div id="menu"></div>
   </section>
 
-  <!-- ข้อมูลผู้รับ -->
   <section>
     <div class="label">📍 ข้อมูลจัดส่ง</div>
     <div class="field"><label>ชื่อเล่น</label><input id="f-name" placeholder="เช่น มิ้น"></div>
@@ -128,7 +122,6 @@ section{margin-top:22px;}
     <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><textarea id="f-note" rows="2" placeholder="เช่น แจ้งสิทธิ์ลูกค้าวันแรก 25 มิ.ย."></textarea></div>
   </section>
 
-  <!-- ชำระเงิน -->
   <section>
     <div class="label">💳 โอนเงิน + แนบสลิป</div>
     <div class="qrbox">
@@ -146,7 +139,6 @@ section{margin-top:22px;}
 
 </div>
 
-<!-- bottom bar -->
 <div class="bar">
   <div class="barin">
     <div class="barsum">
@@ -157,7 +149,6 @@ section{margin-top:22px;}
   </div>
 </div>
 
-<!-- confirm -->
 <div class="ov" id="ov">
   <div class="ov-card">
     <div class="big">🎉</div>
@@ -178,11 +169,21 @@ section{margin-top:22px;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-const CFG = window.MISULAND_CONFIG;
-const supa = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+const CFG=window.MISULAND_CONFIG;
+const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
 
-// ----- เมนู -----
-const MENU = [
+// ----- รอบส่ง -----
+const ROUNDS=[
+  {n:1,cut:"14:00",send:"16:00–16:45"},
+  {n:2,cut:"16:30",send:"18:00–18:45"},
+  {n:3,cut:"18:30",send:"19:45–20:30"},
+  {n:4,cut:"20:00",send:"ไม่เกิน 21:30"},
+  {n:5,cut:"21:00",send:"ไม่เกิน 22:30"},
+];
+const ROUND_TIME=Object.fromEntries(ROUNDS.map(r=>[r.n,r.send]));
+
+// ----- เมนู (ขนมปังทอดเท่านั้น) -----
+const MENU=[
   {cat:"🍞 ขนมปังทอดญี่ปุ่น", items:[
     {name:"รสครีม (Signature)", price:35},
     {name:"ทิรามิสุ", price:40},
@@ -194,68 +195,78 @@ const MENU = [
     {name:"ครีมสตรอเบอรี่", price:49},
     {name:"ครีมส้ม", price:49},
   ]},
-  {cat:"🍰 ทิรามิสุเค้ก (ถ้วย)", items:[
-    {name:"Original Tiramisu", price:59},
-    {name:"Strawberry Crumble", price:59},
-    {name:"Banana Biscoff", price:59},
-    {name:"Mixberry Crumble", price:59},
-    {name:"Matcha Tiramisu", price:59},
-    {name:"Oreo Tiramisu", price:59},
-  ]},
-  {cat:"🍞 มินิโทสต์", items:[
-    {name:"มินิโทสต์", price:39},
-  ]},
 ];
-const ROUND_TIME = {1:"16:00–16:45", 2:"18:00–18:45", 3:"19:45–20:30"};
 
-const qty = {};        // name -> qty
-let round = null;
-let slipFile = null;
+const qty={}; let round=null; let slipFile=null; let roundClosed={};
+
+// render rounds
+const roundsEl=document.getElementById('rounds');
+ROUNDS.forEach(r=>{
+  const el=document.createElement('div'); el.className='round'; el.dataset.round=r.n;
+  el.innerHTML=`<b>รอบ ${r.n}</b><span>ปิดรับ ${r.cut}<br>ส่ง ${r.send}</span><div class="full" style="display:none">เต็มแล้ว</div>`;
+  el.onclick=()=>{
+    if(roundClosed[r.n]) return;
+    document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active'); round=r.n; recalc();
+  };
+  roundsEl.appendChild(el);
+});
 
 // render menu
-const menuEl = document.getElementById('menu');
+const menuEl=document.getElementById('menu');
 MENU.forEach(c=>{
-  const h = document.createElement('div'); h.className='cat'; h.textContent=c.cat; menuEl.appendChild(h);
+  const h=document.createElement('div'); h.className='cat'; h.textContent=c.cat; menuEl.appendChild(h);
   c.items.forEach(it=>{
-    const row = document.createElement('div'); row.className='item'; row.dataset.name=it.name;
-    row.innerHTML = `<div class="info"><div class="nm">${it.name}</div><div class="pr">${it.price}฿</div></div>
-      <div class="step">
-        <button class="minus" aria-label="ลด">−</button>
-        <span class="qty">0</span>
-        <button class="plus" aria-label="เพิ่ม">+</button>
-      </div>`;
-    const q = row.querySelector('.qty');
-    row.querySelector('.plus').onclick=()=>{ qty[it.name]=(qty[it.name]||0)+1; q.textContent=qty[it.name]; row.classList.add('has'); recalc(); };
-    row.querySelector('.minus').onclick=()=>{ qty[it.name]=Math.max(0,(qty[it.name]||0)-1); q.textContent=qty[it.name]; if(!qty[it.name])row.classList.remove('has'); recalc(); };
+    const row=document.createElement('div'); row.className='item'; row.dataset.name=it.name;
+    row.innerHTML=`<div class="info"><div class="nm">${it.name}</div><div class="pr">${it.price}฿</div></div>
+      <div class="step"><button class="minus">−</button><span class="qty">0</span><button class="plus">+</button></div>`;
+    const q=row.querySelector('.qty');
+    row.querySelector('.plus').onclick=()=>{qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
+    row.querySelector('.minus').onclick=()=>{qty[it.name]=Math.max(0,(qty[it.name]||0)-1);q.textContent=qty[it.name];if(!qty[it.name])row.classList.remove('has');recalc();};
     menuEl.appendChild(row);
   });
 });
 
-// rounds
-document.querySelectorAll('.round').forEach(r=>{
-  r.onclick=()=>{ document.querySelectorAll('.round').forEach(x=>x.classList.remove('active')); r.classList.add('active'); round=+r.dataset.round; recalc(); };
-});
-
 // slip
 document.getElementById('f-slip').onchange=(e)=>{
-  slipFile = e.target.files[0] || null;
-  const prev = document.getElementById('slip-prev');
-  if(slipFile){ document.getElementById('slip-label').textContent="เปลี่ยนสลิป"; prev.src=URL.createObjectURL(slipFile); prev.style.display='block'; }
+  slipFile=e.target.files[0]||null;
+  const prev=document.getElementById('slip-prev');
+  if(slipFile){document.getElementById('slip-label').textContent="เปลี่ยนสลิป";prev.src=URL.createObjectURL(slipFile);prev.style.display='block';}
   recalc();
 };
 
-function buildItems(){ return MENU.flatMap(c=>c.items).filter(it=>qty[it.name]>0).map(it=>({name:it.name,price:it.price,qty:qty[it.name]})); }
+function buildItems(){return MENU.flatMap(c=>c.items).filter(it=>qty[it.name]>0).map(it=>({name:it.name,price:it.price,qty:qty[it.name]}));}
 function recalc(){
   const items=buildItems();
   const cnt=items.reduce((s,i)=>s+i.qty,0);
   const total=items.reduce((s,i)=>s+i.price*i.qty,0);
   document.getElementById('cnt').textContent=cnt;
   document.getElementById('total').textContent=total;
-  document.getElementById('submit').disabled = !(cnt>0 && round && slipFile);
+  document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile);
   return {items,cnt,total};
 }
-function thaiDate(){ const d=new Date(Date.now()+7*3600*1000); return d.toISOString().slice(0,10); }
-function showErr(m){ const e=document.getElementById('err'); e.textContent=m; e.style.display='block'; }
+function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
+
+// ----- สถานะปิดรอบ (sync กับ dashboard) -----
+async function loadRoundState(){
+  const {data}=await supa.from('round_state').select('round,closed').eq('order_date',thaiDate());
+  roundClosed={}; (data||[]).forEach(r=>roundClosed[r.round]=r.closed);
+  applyRoundUI();
+}
+function applyRoundUI(){
+  document.querySelectorAll('.round').forEach(el=>{
+    const n=+el.dataset.round, closed=!!roundClosed[n];
+    el.classList.toggle('closed',closed);
+    el.querySelector('.full').style.display=closed?'flex':'none';
+    if(closed && round===n){ round=null; el.classList.remove('active'); recalc(); }
+  });
+}
+supa.channel('rs-rt').on('postgres_changes',{event:'*',schema:'public',table:'round_state'},payload=>{
+  const rec=payload.new||payload.old;
+  if(rec && rec.order_date===thaiDate()){ roundClosed[rec.round]=rec.closed; applyRoundUI(); }
+}).subscribe();
+loadRoundState();
 
 // submit
 document.getElementById('submit').onclick=async()=>{
@@ -267,30 +278,27 @@ document.getElementById('submit').onclick=async()=>{
   const note=document.getElementById('f-note').value.trim();
   document.getElementById('err').style.display='none';
   if(!round) return showErr("เลือกรอบส่งก่อนน้า");
+  if(roundClosed[round]) return showErr("รอบนี้เต็มแล้ว เลือกรอบอื่นน้า");
   if(cnt<1) return showErr("ยังไม่ได้เลือกเมนูเลย");
   if(!name||!contact||!dorm) return showErr("กรอกชื่อ/เบอร์/จุดรับให้ครบน้า");
   if(!slipFile) return showErr("แนบสลิปโอนด้วยน้า");
 
   btn.disabled=true; btn.textContent="กำลังส่ง...";
   try{
-    // 1) upload slip
     const ext=(slipFile.name.split('.').pop()||'jpg').toLowerCase();
     const path=`${thaiDate()}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
-    const up=await supa.storage.from('slips').upload(path, slipFile, {contentType:slipFile.type});
+    const up=await supa.storage.from('slips').upload(path,slipFile,{contentType:slipFile.type});
     if(up.error) throw up.error;
     const slip_url=supa.storage.from('slips').getPublicUrl(path).data.publicUrl;
 
-    // 2) insert order
     const order_date=thaiDate();
     const ins=await supa.from('orders').insert({order_date,round,name,contact,dorm,items,total,slip_url,note}).select().single();
     if(ins.error) throw ins.error;
 
-    // 3) queue number = ลำดับในรอบของวันนี้
     const cntRes=await supa.from('orders').select('id',{count:'exact',head:true})
       .eq('order_date',order_date).eq('round',round).lte('created_at',ins.data.created_at);
     const qno=cntRes.count||1;
 
-    // confirm
     document.getElementById('ov-q').textContent=qno;
     document.getElementById('ov-round').textContent=round;
     document.getElementById('ov-time').textContent=ROUND_TIME[round];
@@ -304,7 +312,6 @@ document.getElementById('submit').onclick=async()=>{
   }
 };
 
-// close → reset
 document.getElementById('ov-close').onclick=()=>{
   document.getElementById('ov').classList.remove('show');
   Object.keys(qty).forEach(k=>qty[k]=0);
