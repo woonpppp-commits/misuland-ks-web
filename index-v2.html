@@ -71,8 +71,12 @@ section:first-of-type{margin-top:20px;}
 /* ===== menu ===== */
 .cat{font-weight:800;font-size:13px;color:var(--accent);margin:4px 0 11px;text-transform:none;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
 .cat::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
-.item{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:11px 13px;margin-bottom:9px;transition:.18s;box-shadow:var(--shadow-xs);}
-.item .ava{width:42px;height:42px;border-radius:13px;background:linear-gradient(160deg,#FFF1E0,#FBE3C6);display:grid;place-items:center;font-size:22px;flex:0 0 auto;}
+.item{display:flex;align-items:center;gap:13px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:12px;margin-bottom:11px;transition:.18s;box-shadow:var(--shadow-xs);}
+.item .ava{width:86px;height:86px;border-radius:15px;background:linear-gradient(160deg,#FFF1E0,#FBE3C6);display:grid;place-items:center;font-size:42px;flex:0 0 auto;overflow:hidden;position:relative;}
+.item .ava img{width:100%;height:100%;object-fit:cover;display:block;}
+.item .ava.zoomable{cursor:zoom-in;}
+.item .ava .zoom{position:absolute;bottom:4px;right:4px;background:rgba(92,45,10,.62);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px;display:flex;align-items:center;gap:2px;}
+.item .ava:active img{transform:scale(.94);transition:.12s;}
 .item .info{flex:1;min-width:0;}
 .item .nm{font-weight:600;font-size:15px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.25;}
 .item .pr{font-size:13.5px;color:var(--accent);font-weight:700;margin-top:2px;}
@@ -133,6 +137,12 @@ section:first-of-type{margin-top:20px;}
 .ov-card button.close{margin-top:14px;background:none;border:none;color:var(--muted);font-size:14px;text-decoration:underline;cursor:pointer;}
 .hint{font-size:12.5px;color:var(--muted);margin-top:8px;}
 .err{color:#C0392B;font-size:13.5px;margin-top:10px;font-weight:600;display:none;text-align:center;}
+/* ===== lightbox ดูรูปเมนูใหญ่ ===== */
+.lb{position:fixed;inset:0;z-index:300;background:rgba(40,20,5,.9);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:14px;}
+.lb.show{display:flex;animation:fade .2s ease;}
+.lb img{max-width:100%;max-height:74vh;border-radius:20px;box-shadow:var(--shadow);animation:pop .3s cubic-bezier(.34,1.56,.64,1);}
+.lb .cap{color:#FFF0DC;font-weight:700;font-size:18px;text-align:center;}
+.lb .x{position:absolute;top:14px;right:18px;color:#fff;font-size:30px;line-height:1;cursor:pointer;background:rgba(255,255,255,.15);border:none;width:44px;height:44px;border-radius:50%;}
 </style>
 </head>
 <body>
@@ -216,11 +226,18 @@ section:first-of-type{margin-top:20px;}
   </div>
 </div>
 
+<div class="lb" id="lb"><button class="x" id="lb-x">✕</button><img id="lb-img" alt=""><div class="cap" id="lb-cap"></div></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
 const CFG=window.MISULAND_CONFIG;
 const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+
+// ----- lightbox ดูรูปเมนูใหญ่ -----
+function openLB(src,cap){document.getElementById('lb-img').src=src;document.getElementById('lb-cap').textContent=cap||'';document.getElementById('lb').classList.add('show');}
+function closeLB(){document.getElementById('lb').classList.remove('show');}
+document.getElementById('lb').onclick=e=>{if(e.target.id==='lb'||e.target.id==='lb-x')closeLB();};
 
 // ----- รอบส่ง -----
 const ROUNDS=[
@@ -237,12 +254,12 @@ function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]
 // ----- เมนู (ขนมปังทอดเท่านั้น) -----
 const MENU=[
   {cat:"🍞 ขนมปังทอดญี่ปุ่น", items:[
-    {name:"รสครีม (Signature)", price:30, emoji:"🍦"},
-    {name:"ช็อกโกแลต", price:40, emoji:"🍫"},
-    {name:"มัทฉะ", price:40, emoji:"🍵"},
-    {name:"คัสตาร์ดหน้าไหม้", price:40, emoji:"🍮"},
-    {name:"ช็อกกล้วย", price:40, emoji:"🍌"},
-    {name:"ครีมสตรอเบอรี่", price:40, emoji:"🍓"},
+    {name:"รสครีม (Signature)", price:30, emoji:"🍦", img:"assets/menu/cream.jpg"},
+    {name:"ช็อกโกแลต", price:40, emoji:"🍫", img:"assets/menu/chocolate.jpg"},
+    {name:"มัทฉะ", price:40, emoji:"🍵", img:"assets/menu/matcha.jpg"},
+    {name:"คัสตาร์ดหน้าไหม้", price:40, emoji:"🍮", img:"assets/menu/custard.jpg"},
+    {name:"ช็อกกล้วย", price:40, emoji:"🍌", img:"assets/menu/chocbanana.jpg"},
+    {name:"ครีมสตรอเบอรี่", price:40, emoji:"🍓", img:"assets/menu/strawberry.jpg"},
     {name:"ช็อกโกแลตดูไบ", price:50, emoji:"💚", tag:"ใหม่"},
     {name:"บิสคอฟครันชี่", price:40, emoji:"🍪", tag:"ใหม่"},
   ]},
@@ -283,9 +300,13 @@ MENU.forEach(c=>{
   c.items.forEach(it=>{
     const row=document.createElement('div'); row.className='item'; row.dataset.name=it.name;
     const tag=it.tag?`<span class="tag">${it.tag}</span>`:'';
-    row.innerHTML=`<div class="ava">${it.emoji||'🍞'}</div>
+    const ava=it.img
+      ? `<div class="ava zoomable"><img src="${it.img}" alt="${it.name}" loading="lazy"><span class="zoom">🔍 ดูรูป</span></div>`
+      : `<div class="ava">${it.emoji||'🍞'}</div>`;
+    row.innerHTML=`${ava}
       <div class="info"><div class="nm">${it.name}${tag}</div><div class="pr">฿${it.price}</div></div>
       <div class="step"><button class="minus">−</button><span class="qty">0</span><button class="plus">+</button></div>`;
+    if(it.img){ row.querySelector('.ava').onclick=()=>openLB(it.img, `${it.name} · ฿${it.price}`); }
     const q=row.querySelector('.qty');
     row.querySelector('.plus').onclick=()=>{qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
     row.querySelector('.minus').onclick=()=>{qty[it.name]=Math.max(0,(qty[it.name]||0)-1);q.textContent=qty[it.name];if(!qty[it.name])row.classList.remove('has');recalc();};
