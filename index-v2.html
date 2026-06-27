@@ -264,7 +264,7 @@ zoneEl.onchange=()=>{zoneFee=zoneEl.value===''?0:ZONES[+zoneEl.value].fee;recalc
 const roundsEl=document.getElementById('rounds');
 ROUNDS.forEach(r=>{
   const el=document.createElement('div'); el.className='round'; el.dataset.round=r.n;
-  el.innerHTML=`<b>รอบ ${r.n}</b><span>ปิดรับ ${r.cut}<br>ส่ง ${r.send}</span><div class="full" style="display:none">เต็มแล้ว</div>`;
+  el.innerHTML=`<b>รอบ ${r.n}</b><span>ส่งถึง ${r.send}</span><div class="full" style="display:none">เต็มแล้ว</div>`;
   el.onclick=()=>{
     if(roundClosed[r.n]) return;
     document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));

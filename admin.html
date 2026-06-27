@@ -17,6 +17,7 @@ header h1{font-size:18px;color:#fff;}
 header .live{font-size:12px;background:#2D6A4F;padding:3px 9px;border-radius:12px;}
 header input[type=date]{margin-left:auto;border:none;border-radius:10px;padding:7px 10px;font-family:inherit;font-size:14px;}
 header button#reload{border:none;border-radius:10px;padding:7px 12px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;}
+header button#clearday{border:none;border-radius:10px;padding:7px 12px;background:#922B21;color:#fff;font-weight:700;cursor:pointer;}
 
 #gate{position:fixed;inset:0;background:var(--brown);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:14px;color:#fff;padding:20px;text-align:center;}
 #gate input{padding:12px 16px;border-radius:12px;border:none;font-size:16px;font-family:inherit;text-align:center;}
@@ -52,6 +53,7 @@ header button#reload{border:none;border-radius:10px;padding:7px 12px;background:
 .order .row2{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
 .order .row2 a.slip{font-size:13px;color:#fff;background:var(--brown2);padding:6px 13px;border-radius:14px;text-decoration:none;}
 .order select{font-family:inherit;font-size:14px;border:1.5px solid var(--border);border-radius:12px;padding:7px 10px;background:#fff;color:var(--brown);font-weight:700;}
+.order .row2 button.del{font-family:inherit;font-size:13px;font-weight:700;color:#922B21;background:#FADBD8;border:none;border-radius:14px;padding:7px 13px;cursor:pointer;}
 .order .ct{font-size:12.5px;color:var(--muted);}
 .badge{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:12px;}
 .b-รอตรวจสลิป{background:#FDEBD0;color:#B9770E;}
@@ -76,6 +78,7 @@ header button#reload{border:none;border-radius:10px;padding:7px 12px;background:
     <span class="live" id="live">● realtime</span>
     <input type="date" id="date">
     <button id="reload">รีเฟรช</button>
+    <button id="clearday">🗑 ล้างวันนี้</button>
   </div>
 </header>
 
@@ -135,6 +138,15 @@ async function load(){
 }
 function fmtTime(ts){return new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});}
 
+async function clearDay(){
+  const d=dateEl.value||thaiDate();
+  if(!confirm(`ล้างออเดอร์ทั้งหมดของวันที่ ${d}?\nคิวจะเริ่มนับ #1 ใหม่ในวันถัดไป (กู้คืนไม่ได้)`)) return;
+  const o=await supa.from('orders').delete().eq('order_date',d);
+  if(o.error){alert('ลบไม่สำเร็จ: '+o.error.message+'\n(ยังไม่ได้รัน schema-v4.sql ใน Supabase?)');return;}
+  await supa.from('round_state').delete().eq('order_date',d); // รีเซ็ตสถานะเปิด/ปิดรอบด้วย
+  load();
+}
+
 async function toggleRound(r){
   const d=dateEl.value||thaiDate();
   const next=!roundClosed[r];
@@ -180,6 +192,7 @@ function orderCard(o,qno){
       <div class="row2">
         ${o.slip_url?`<a class="slip" href="${o.slip_url}" target="_blank">🧾 ดูสลิป</a>`:'<span class="ct">ไม่มีสลิป</span>'}
         <select>${opts}</select>
+        <button class="del">🗑 ลบ</button>
         <span class="ct">⏱ ${fmtTime(o.created_at)}</span>
       </div>
     </div>`;
@@ -189,6 +202,12 @@ function orderCard(o,qno){
     if(error){alert('อัปเดตไม่สำเร็จ: '+error.message);return;}
     o.status=ns; render();
   };
+  el.querySelector('button.del').onclick=async()=>{
+    if(!confirm(`ลบออเดอร์ของ ${o.name} (฿${o.total}) ออกถาวร?`)) return;
+    const {error}=await supa.from('orders').delete().eq('id',o.id);
+    if(error){alert('ลบไม่สำเร็จ: '+error.message+'\n(ยังไม่ได้รัน schema-v4.sql ใน Supabase?)');return;}
+    rows=rows.filter(x=>x.id!==o.id); render();
+  };
   return el;
 }
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -197,6 +216,7 @@ function init(){
   dateEl.value=thaiDate(); load();
   dateEl.onchange=load;
   document.getElementById('reload').onclick=load;
+  document.getElementById('clearday').onclick=clearDay;
   supa.channel('rt').on('postgres_changes',{event:'*',schema:'public',table:'orders'},flash)
     .on('postgres_changes',{event:'*',schema:'public',table:'round_state'},flash).subscribe();
   function flash(payload){
