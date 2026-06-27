@@ -164,7 +164,7 @@ section:first-of-type{margin-top:20px;}
 
   <section>
     <div class="label"><span class="ic">📍</span>ข้อมูลจัดส่ง</div>
-    <div class="field"><label>ชื่อเล่น</label><input id="f-name" placeholder="เช่น มิ้น"></div>
+    <div class="field"><label>ชื่อเล่น <small style="color:var(--muted);font-weight:500">(ชื่อเดียวกับในโอเพนแชท)</small></label><input id="f-name" placeholder="ชื่อเดียวกับในโอเพนแชท"></div>
     <div class="field"><label>เบอร์ / LINE ติดต่อ</label><input id="f-contact" placeholder="0xx-xxx-xxxx"></div>
     <div class="field"><label>โซนจัดส่ง 🚚 <small style="color:var(--muted);font-weight:500">(ค่าส่งคิดตามโซน)</small></label>
       <select id="f-zone"><option value="">— เลือกโซนจัดส่ง —</option></select></div>
@@ -228,8 +228,11 @@ const ROUNDS=[
   {n:2,cut:"16:30",send:"18:00–18:45"},
   {n:3,cut:"18:30",send:"19:45–20:30"},
   {n:4,cut:"20:00",send:"ไม่เกิน 21:30"},
+  {n:5,label:"รับเลย",send:"พร้อมส่งเลย · ตอนคิวว่าง",instant:true},
 ];
 const ROUND_TIME=Object.fromEntries(ROUNDS.map(r=>[r.n,r.send]));
+// รอบ "รับเลย" (5) ปกติปิดอยู่ จะเปิดต่อเมื่อร้านกดเปิด (round_state.closed=false) เท่านั้น
+function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
 
 // ----- เมนู (ขนมปังทอดเท่านั้น) -----
 const MENU=[
@@ -264,9 +267,9 @@ zoneEl.onchange=()=>{zoneFee=zoneEl.value===''?0:ZONES[+zoneEl.value].fee;recalc
 const roundsEl=document.getElementById('rounds');
 ROUNDS.forEach(r=>{
   const el=document.createElement('div'); el.className='round'; el.dataset.round=r.n;
-  el.innerHTML=`<b>รอบ ${r.n}</b><span>ส่งถึง ${r.send}</span><div class="full" style="display:none">เต็มแล้ว</div>`;
+  el.innerHTML=`<b>${r.label||'รอบ '+r.n}</b><span>${r.instant?r.send:'ส่งถึง '+r.send}</span><div class="full" style="display:none">${r.instant?'ยังไม่เปิด':'เต็มแล้ว'}</div>`;
   el.onclick=()=>{
-    if(roundClosed[r.n]) return;
+    if(isClosed(r.n)) return;
     document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
     el.classList.add('active'); round=r.n; recalc();
   };
@@ -323,7 +326,7 @@ async function loadRoundState(){
 }
 function applyRoundUI(){
   document.querySelectorAll('.round').forEach(el=>{
-    const n=+el.dataset.round, closed=!!roundClosed[n];
+    const n=+el.dataset.round, closed=isClosed(n);
     el.classList.toggle('closed',closed);
     el.querySelector('.full').style.display=closed?'flex':'none';
     if(closed && round===n){ round=null; el.classList.remove('active'); recalc(); }
@@ -346,7 +349,7 @@ document.getElementById('submit').onclick=async()=>{
   const note=document.getElementById('f-note').value.trim();
   document.getElementById('err').style.display='none';
   if(!round) return showErr("เลือกรอบส่งก่อนน้า");
-  if(roundClosed[round]) return showErr("รอบนี้เต็มแล้ว เลือกรอบอื่นน้า");
+  if(isClosed(round)) return showErr("รอบนี้ปิดอยู่ เลือกรอบอื่นน้า");
   if(cnt<1) return showErr("ยังไม่ได้เลือกเมนูเลย");
   if(zoneIdx==='') return showErr("เลือกโซนจัดส่งก่อนน้า");
   if(!name||!contact||!room) return showErr("กรอกชื่อ/เบอร์/หอ-ห้องให้ครบน้า");
@@ -366,11 +369,11 @@ document.getElementById('submit').onclick=async()=>{
     if(ins.error) throw ins.error;
 
     const cntRes=await supa.from('orders').select('id',{count:'exact',head:true})
-      .eq('order_date',order_date).eq('round',round).lte('created_at',ins.data.created_at);
-    const qno=cntRes.count||1;
+      .eq('order_date',order_date).lte('created_at',ins.data.created_at);
+    const qno=cntRes.count||1; // เลขคิวรันต่อเนื่องทั้งวัน (ไม่รีเซ็ตตามรอบ)
 
     document.getElementById('ov-q').textContent=qno;
-    document.getElementById('ov-round').textContent=round;
+    document.getElementById('ov-round').textContent=round===5?'รับเลย':round;
     document.getElementById('ov-time').textContent=ROUND_TIME[round];
     document.getElementById('ov-total').textContent=total;
     document.getElementById('ov-line').href=CFG.LINE_OA_URL;

@@ -92,8 +92,11 @@ header button#clearday{border:none;border-radius:10px;padding:7px 12px;backgroun
 <script>
 const CFG=window.MISULAND_CONFIG;
 const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
-const ROUNDS=[1,2,3,4];
-const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30"};
+const ROUNDS=[1,2,3,4,5];
+const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30",5:"พร้อมส่งเลย · ตอนคิวว่าง"};
+const RLABEL=r=>r===5?'รับเลย':'รอบ '+r;
+// รอบ "รับเลย" (5) ปกติปิด เปิดเมื่อ round_state.closed=false เท่านั้น
+function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
 let _ac=null; // audio context สำหรับเสียงแจ้งเตือน
 function beep(){
   try{
@@ -149,31 +152,34 @@ async function clearDay(){
 
 async function toggleRound(r){
   const d=dateEl.value||thaiDate();
-  const next=!roundClosed[r];
+  const prev=roundClosed[r];
+  const next=!isClosed(r); // ค่า closed ใหม่ (สลับสถานะ — รองรับรอบรับเลยที่ default ปิด)
   roundClosed[r]=next; render();
   const {error}=await supa.from('round_state').upsert({order_date:d,round:r,closed:next},{onConflict:'order_date,round'});
-  if(error){alert('เปลี่ยนสถานะรอบไม่สำเร็จ: '+error.message); roundClosed[r]=!next; render();}
+  if(error){alert('เปลี่ยนสถานะรอบไม่สำเร็จ: '+error.message); roundClosed[r]=prev; render();}
 }
 
 function render(){
+  // เลขคิวรันต่อเนื่องทั้งวัน (rows เรียงตาม created_at อยู่แล้ว) ตรงกับที่ลูกค้าเห็น
+  const dayNo={}; rows.forEach((o,i)=>dayNo[o.id]=i+1);
   const sumEl=document.getElementById('summary'); sumEl.innerHTML='';
   ROUNDS.forEach(r=>{
     const rs=rows.filter(o=>o.round===r&&o.status!=='ยกเลิก');
     const cnt=rs.length, baht=rs.reduce((s,o)=>s+o.total,0);
-    sumEl.innerHTML+=`<div class="sum ${roundClosed[r]?'closed':''}"><b>รอบ ${r}${roundClosed[r]?' 🔒':''}</b><div class="c">${cnt}</div><div class="m">฿${baht}</div></div>`;
+    sumEl.innerHTML+=`<div class="sum ${isClosed(r)?'closed':''}"><b>${RLABEL(r)}${isClosed(r)?' 🔒':''}</b><div class="c">${cnt}</div><div class="m">฿${baht}</div></div>`;
   });
   const board=document.getElementById('board'); board.innerHTML='';
   ROUNDS.forEach(r=>{
     const rs=rows.filter(o=>o.round===r);
-    const closed=!!roundClosed[r];
+    const closed=isClosed(r);
     const hdr=document.createElement('div'); hdr.className='roundhdr';
-    hdr.innerHTML=`<span class="t">รอบ ${r}</span><span class="tm">${ROUND_TIME[r]}</span>
+    hdr.innerHTML=`<span class="t">${RLABEL(r)}</span><span class="tm">${ROUND_TIME[r]}</span>
       ${closed?'<span class="pill-closed">ปิดรับแล้ว</span>':''}
       <button class="toggle ${closed?'closed':'open'}">${closed?'↻ เปิดรอบ':'⛔ ปิดรอบ'}</button>`;
     hdr.querySelector('.toggle').onclick=()=>toggleRound(r);
     board.appendChild(hdr);
     if(!rs.length){board.insertAdjacentHTML('beforeend','<div class="empty">— ยังไม่มีออเดอร์ —</div>');return;}
-    rs.forEach((o,i)=>board.appendChild(orderCard(o,i+1)));
+    rs.forEach(o=>board.appendChild(orderCard(o,dayNo[o.id])));
   });
 }
 
