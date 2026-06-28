@@ -142,7 +142,11 @@ section:first-of-type{margin-top:20px;}
 .lb.show{display:flex;animation:fade .2s ease;}
 .lb img{max-width:100%;max-height:74vh;border-radius:20px;box-shadow:var(--shadow);animation:pop .3s cubic-bezier(.34,1.56,.64,1);}
 .lb .cap{color:#FFF0DC;font-weight:700;font-size:18px;text-align:center;}
-.lb .x{position:absolute;top:14px;right:18px;color:#fff;font-size:30px;line-height:1;cursor:pointer;background:rgba(255,255,255,.15);border:none;width:44px;height:44px;border-radius:50%;}
+.lb .x{position:absolute;top:14px;right:18px;color:#fff;font-size:30px;line-height:1;cursor:pointer;background:rgba(255,255,255,.15);border:none;width:44px;height:44px;border-radius:50%;z-index:2;}
+.lb.full{justify-content:flex-start;overflow:auto;padding:60px 12px 24px;}
+.lb.full img{max-height:none;width:100%;}
+.menu-full-btn{width:100%;margin-top:16px;background:linear-gradient(160deg,var(--accent2),var(--accent));color:#fff;border:none;border-radius:16px;padding:14px;font-family:inherit;font-weight:800;font-size:15.5px;cursor:pointer;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;gap:8px;}
+.menu-full-btn:active{transform:scale(.98);}
 </style>
 </head>
 <body>
@@ -161,6 +165,8 @@ section:first-of-type{margin-top:20px;}
 </header>
 
 <div class="wrap">
+
+  <button class="menu-full-btn" id="menuFullBtn">📋 ดูเมนูรวมทั้งแผ่น</button>
 
   <section>
     <div class="label"><span class="ic">⏰</span>เลือกรอบส่ง <small>ของส่งถึงตามเวลานี้</small></div>
@@ -235,9 +241,10 @@ const CFG=window.MISULAND_CONFIG;
 const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
 
 // ----- lightbox ดูรูปเมนูใหญ่ -----
-function openLB(src,cap){document.getElementById('lb-img').src=src;document.getElementById('lb-cap').textContent=cap||'';document.getElementById('lb').classList.add('show');}
+function openLB(src,cap,full){const lb=document.getElementById('lb');document.getElementById('lb-img').src=src;document.getElementById('lb-cap').textContent=cap||'';lb.classList.toggle('full',!!full);lb.scrollTop=0;lb.classList.add('show');}
 function closeLB(){document.getElementById('lb').classList.remove('show');}
 document.getElementById('lb').onclick=e=>{if(e.target.id==='lb'||e.target.id==='lb-x')closeLB();};
+document.getElementById('menuFullBtn').onclick=()=>openLB('assets/menu/menu-full.jpg','เมนูรวม Misuland กำแพงแสน',true);
 
 // ----- รอบส่ง -----
 const ROUNDS=[
