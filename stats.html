@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สรุปยอด — Misuland กำแพงแสน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Thai+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5E6C8;--cream2:#FFF8EE;--sand:#F0DDB8;--brown:#5C2D0A;--brown2:#7A4A20;--muted:#A0704A;--accent:#E8743B;--green:#2D6A4F;--border:#E8CDAA;--shadow-sm:0 6px 16px -8px rgba(92,45,10,.4);}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Baloo Thai 2',system-ui,sans-serif;}
+body{background:var(--cream);color:var(--brown);padding-bottom:50px;}
+.wrap{max-width:960px;margin:0 auto;padding:0 14px;}
+header{background:linear-gradient(160deg,var(--brown),var(--brown2));color:#fff;padding:14px 0;position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm);}
+header .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+header h1{font-size:18px;color:#fff;}
+header a.nav{margin-left:auto;font-size:12.5px;background:rgba(255,255,255,.15);color:#fff;padding:6px 12px;border-radius:12px;text-decoration:none;}
+
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0;}
+.seg{display:inline-flex;background:var(--cream2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.seg button{border:none;background:none;padding:8px 16px;font-family:inherit;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;}
+.seg button.on{background:var(--accent);color:#fff;}
+.controls input{border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-family:inherit;font-size:14px;}
+.controls button#reload{border:none;border-radius:10px;padding:8px 14px;background:var(--brown2);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;}
+
+#gate{position:fixed;inset:0;background:var(--brown);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:14px;color:#fff;padding:20px;text-align:center;}
+#gate input{padding:12px 16px;border-radius:12px;border:none;font-size:16px;font-family:inherit;text-align:center;}
+#gate button{padding:11px 28px;border-radius:24px;border:none;background:var(--accent);color:#fff;font-weight:800;font-size:15px;cursor:pointer;}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin-bottom:18px;}
+.kpi{background:var(--cream2);border:1px solid var(--border);border-radius:14px;padding:13px 15px;}
+.kpi b{display:block;font-size:12.5px;color:var(--accent);font-weight:700;}
+.kpi .v{font-size:25px;font-weight:800;line-height:1.1;margin-top:3px;}
+.kpi .s{font-size:11.5px;color:var(--brown2);}
+
+.card{background:var(--cream2);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:16px;}
+.card h2{font-size:15.5px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.bar{margin-bottom:9px;}
+.bar .t{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:3px;}
+.bar .t .n{font-weight:600;}
+.bar .t .x{color:var(--green);font-weight:700;}
+.bar .track{height:9px;background:var(--sand);border-radius:6px;overflow:hidden;}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--accent),#F4A259);border-radius:6px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{text-align:left;padding:8px 7px;border-bottom:1px solid var(--border);}
+th{color:var(--accent);font-size:12px;font-weight:700;}
+td.num,th.num{text-align:right;}
+tr.repeat td{background:#FBF1DD;}
+.tag-rp{font-size:10px;font-weight:700;background:#D4EFDF;color:#1E8449;padding:1px 6px;border-radius:8px;margin-left:5px;}
+.empty{color:var(--muted);font-size:14px;padding:14px 0;text-align:center;}
+.muted{color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div style="font-size:40px">📊</div>
+  <div>Dashboard สรุปยอด — ใส่รหัสผ่าน</div>
+  <input id="pass" type="password" placeholder="รหัสผ่าน" autocomplete="off">
+  <button id="enter">เข้าสู่ระบบ</button>
+</div>
+
+<header>
+  <div class="wrap">
+    <h1>📊 สรุปยอด กำแพงแสน</h1>
+    <a class="nav" href="admin.html">→ จัดการออเดอร์</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="seg" id="mode">
+      <button data-m="day" class="on">รายวัน</button>
+      <button data-m="month">รายเดือน</button>
+    </div>
+    <input type="date" id="dpick">
+    <input type="month" id="mpick" style="display:none">
+    <button id="reload">รีเฟรช</button>
+    <span class="muted" id="range"></span>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+  <div id="body"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const CFG=window.MISULAND_CONFIG;
+const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
+function thaiMonth(){return thaiDate().slice(0,7);}
+let mode='day';
+
+document.getElementById('enter').onclick=tryPass;
+document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryPass();});
+function tryPass(){
+  if(document.getElementById('pass').value===CFG.ADMIN_PASSCODE){document.getElementById('gate').style.display='none';init();}
+  else{document.getElementById('pass').value='';document.getElementById('pass').placeholder='รหัสผิด ลองใหม่';}
+}
+
+function init(){
+  document.getElementById('dpick').value=thaiDate();
+  document.getElementById('mpick').value=thaiMonth();
+  document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{
+    mode=b.dataset.m;
+    document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));
+    document.getElementById('dpick').style.display=mode==='day'?'':'none';
+    document.getElementById('mpick').style.display=mode==='month'?'':'none';
+    load();
+  });
+  document.getElementById('reload').onclick=load;
+  document.getElementById('dpick').onchange=load;
+  document.getElementById('mpick').onchange=load;
+  load();
+}
+
+async function load(){
+  const body=document.getElementById('body');
+  let q=supa.from('orders').select('*');
+  let label='';
+  if(mode==='day'){const d=document.getElementById('dpick').value||thaiDate(); q=q.eq('order_date',d); label='วันที่ '+d;}
+  else{const m=document.getElementById('mpick').value||thaiMonth(); q=q.like('order_date',m+'-%'); label='เดือน '+m;}
+  document.getElementById('range').textContent=label;
+  const {data,error}=await q.order('created_at',{ascending:true});
+  if(error){body.innerHTML='<div class="empty">โหลดไม่ได้: '+error.message+'</div>';return;}
+  render(data||[]);
+}
+
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function baht(n){return '฿'+(n||0).toLocaleString();}
+const ROUND_LABEL=r=>r===5?'รับเลย':'รอบ '+r;
+
+function render(all){
+  const valid=all.filter(o=>o.status!=='ยกเลิก');
+  const kpiEl=document.getElementById('kpis'); const body=document.getElementById('body'); body.innerHTML='';
+  if(!valid.length){kpiEl.innerHTML='';body.innerHTML='<div class="empty">— ไม่มีออเดอร์ในช่วงนี้ —</div>';return;}
+
+  const revenue=valid.reduce((s,o)=>s+(o.total||0),0);
+  const shipping=valid.reduce((s,o)=>s+(o.shipping||0),0);
+  const pieces=valid.reduce((s,o)=>s+(o.items||[]).reduce((a,i)=>a+(i.qty||0),0),0);
+  const orders=valid.length;
+
+  // ----- ลูกค้า (group by contact, fallback name) -----
+  const cust={};
+  valid.forEach(o=>{const k=(o.contact||o.name||'?').trim();
+    if(!cust[k])cust[k]={name:o.name,contact:o.contact,dorm:o.dorm,orders:0,total:0,pieces:0,last:o.order_date};
+    const c=cust[k];c.orders++;c.total+=o.total||0;c.pieces+=(o.items||[]).reduce((a,i)=>a+(i.qty||0),0);
+    if(o.order_date>=c.last)c.last=o.order_date; c.name=o.name||c.name; c.dorm=o.dorm||c.dorm;
+  });
+  const custList=Object.values(cust).sort((a,b)=>b.total-a.total);
+  const repeat=custList.filter(c=>c.orders>=2).length;
+
+  kpiEl.innerHTML=`
+    ${kpi('ยอดขายรวม',baht(revenue),'รวมค่าส่ง '+baht(shipping))}
+    ${kpi('ออเดอร์',orders,pieces+' ชิ้น')}
+    ${kpi('เฉลี่ย/ออเดอร์',baht(Math.round(revenue/orders)),'')}
+    ${kpi('ลูกค้า',custList.length,'คน')}
+    ${kpi('ลูกค้าซื้อซ้ำ',repeat,custList.length?Math.round(repeat/custList.length*100)+'% ของลูกค้า':'')}
+  `;
+
+  // ----- สินค้าขายดี -----
+  const prod={};
+  valid.forEach(o=>(o.items||[]).forEach(it=>{
+    if(!prod[it.name])prod[it.name]={qty:0,rev:0};
+    prod[it.name].qty+=it.qty||0; prod[it.name].rev+=(it.price||0)*(it.qty||0);
+  }));
+  const prodList=Object.entries(prod).sort((a,b)=>b[1].qty-a[1].qty);
+  const maxQ=Math.max(...prodList.map(p=>p[1].qty),1);
+  body.appendChild(cardEl('🍞 สินค้าขายดี', prodList.map(([n,p])=>
+    barRow(n, p.qty+' ชิ้น · '+baht(p.rev), p.qty/maxQ)).join('') || '<div class="empty">—</div>'));
+
+  // ----- ยอดตามรอบ -----
+  const rnd={};
+  valid.forEach(o=>{rnd[o.round]=rnd[o.round]||{c:0,r:0};rnd[o.round].c++;rnd[o.round].r+=o.total||0;});
+  const rndList=Object.entries(rnd).sort((a,b)=>a[0]-b[0]);
+  const maxR=Math.max(...rndList.map(r=>r[1].r),1);
+  body.appendChild(cardEl('⏰ ยอดตามรอบ', rndList.map(([r,v])=>
+    barRow(ROUND_LABEL(+r), v.c+' ออเดอร์ · '+baht(v.r), v.r/maxR)).join('')));
+
+  // ----- ยอดตามโซน/จัดส่ง -----
+  const zone={};
+  valid.forEach(o=>{const z=(o.dorm||'').split(' • ')[0]||'ไม่ระบุ';zone[z]=zone[z]||{c:0,r:0};zone[z].c++;zone[z].r+=o.total||0;});
+  const zoneList=Object.entries(zone).sort((a,b)=>b[1].r-a[1].r);
+  const maxZ=Math.max(...zoneList.map(z=>z[1].r),1);
+  body.appendChild(cardEl('🚚 โซนจัดส่ง / รับเอง', zoneList.map(([z,v])=>
+    barRow(z, v.c+' ออเดอร์ · '+baht(v.r), v.r/maxZ)).join('')));
+
+  // ----- รายวัน (เฉพาะโหมดเดือน) -----
+  if(mode==='month'){
+    const day={};
+    valid.forEach(o=>{day[o.order_date]=day[o.order_date]||{c:0,r:0,p:0};day[o.order_date].c++;day[o.order_date].r+=o.total||0;day[o.order_date].p+=(o.items||[]).reduce((a,i)=>a+(i.qty||0),0);});
+    const dayList=Object.entries(day).sort((a,b)=>a[0].localeCompare(b[0]));
+    let rows=dayList.map(([d,v])=>`<tr><td>${d.slice(8)}</td><td class="num">${v.c}</td><td class="num">${v.p}</td><td class="num">${baht(v.r)}</td></tr>`).join('');
+    rows+=`<tr style="font-weight:800"><td>รวม</td><td class="num">${orders}</td><td class="num">${pieces}</td><td class="num">${baht(revenue)}</td></tr>`;
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=`<h2>📅 ยอดรายวัน (${dayList.length} วันที่ขาย)</h2><table><thead><tr><th>วันที่</th><th class="num">ออเดอร์</th><th class="num">ชิ้น</th><th class="num">ยอด</th></tr></thead><tbody>${rows}</tbody></table>`;
+    body.appendChild(c);
+  }
+
+  // ----- รายชื่อลูกค้า -----
+  const c=document.createElement('div');c.className='card';
+  const rows=custList.map(cu=>`<tr class="${cu.orders>=2?'repeat':''}">
+    <td>${esc(cu.name||'-')}${cu.orders>=2?'<span class="tag-rp">ซ้ำ</span>':''}</td>
+    <td>${esc(cu.contact||'-')}</td>
+    <td>${esc((cu.dorm||'').split(' • ')[0])}</td>
+    <td class="num">${cu.orders}</td>
+    <td class="num">${cu.pieces}</td>
+    <td class="num">${baht(cu.total)}</td></tr>`).join('');
+  c.innerHTML=`<h2>👥 ลูกค้า (${custList.length} คน · ซื้อซ้ำ ${repeat})</h2>
+    <table><thead><tr><th>ชื่อ</th><th>ติดต่อ</th><th>โซน</th><th class="num">ครั้ง</th><th class="num">ชิ้น</th><th class="num">ยอดรวม</th></tr></thead><tbody>${rows}</tbody></table>`;
+  body.appendChild(c);
+}
+
+function kpi(label,v,s){return `<div class="kpi"><b>${label}</b><div class="v">${v}</div><div class="s">${s||''}</div></div>`;}
+function cardEl(title,inner){const c=document.createElement('div');c.className='card';c.innerHTML=`<h2>${title}</h2>${inner}`;return c;}
+function barRow(name,right,frac){return `<div class="bar"><div class="t"><span class="n">${esc(name)}</span><span class="x">${right}</span></div><div class="track"><div class="fill" style="width:${Math.max(4,frac*100)}%"></div></div></div>`;}
+</script>
+</body>
+</html>
