@@ -182,8 +182,8 @@ section:first-of-type{margin-top:20px;}
     <div class="label"><span class="ic">📍</span>ข้อมูลจัดส่ง</div>
     <div class="field"><label>ชื่อเล่น <small style="color:var(--muted);font-weight:500">(ชื่อเดียวกับในโอเพนแชท)</small></label><input id="f-name" placeholder="ชื่อเดียวกับในโอเพนแชท"></div>
     <div class="field"><label>เบอร์ / LINE ติดต่อ</label><input id="f-contact" placeholder="0xx-xxx-xxxx"></div>
-    <div class="field"><label>โซนจัดส่ง 🚚 <small style="color:var(--muted);font-weight:500">(ค่าส่งคิดตามโซน)</small></label>
-      <select id="f-zone"><option value="">— เลือกโซนจัดส่ง —</option></select></div>
+    <div class="field"><label>รับเอง หรือ จัดส่ง? 🚚 <small style="color:var(--muted);font-weight:500">(มารับเองที่ล่างหอ = ส่งฟรี 0฿)</small></label>
+      <select id="f-zone"><option value="">— เลือกรับเอง / โซนจัดส่ง —</option></select></div>
     <div class="field"><label>หอ/ตึก + ห้อง (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B ห้อง 210"></div>
     <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><textarea id="f-note" rows="2" placeholder="เช่น แจ้งสิทธิ์ลูกค้าวันแรก 25 มิ.ย."></textarea></div>
   </section>
@@ -267,12 +267,13 @@ const MENU=[
     {name:"คัสตาร์ดหน้าไหม้", price:40, emoji:"🍮", img:"assets/menu/custard.jpg"},
     {name:"ช็อกกล้วย", price:40, emoji:"🍌", img:"assets/menu/chocbanana.jpg"},
     {name:"ครีมสตรอเบอรี่", price:40, emoji:"🍓", img:"assets/menu/strawberry.jpg"},
-    {name:"ช็อกโกแลตดูไบ", price:50, emoji:"💚", tag:"ใหม่"},
-    {name:"บิสคอฟครันชี่", price:40, emoji:"🍪", tag:"ใหม่"},
+    {name:"ช็อกโกแลตดูไบ", price:50, emoji:"💚", tag:"ใหม่", img:"assets/menu/dubai.jpg"},
+    {name:"บิสคอฟครันชี่", price:40, emoji:"🍪", tag:"ใหม่", img:"assets/menu/biscoff.jpg"},
   ]},
 ];
 
 const ZONES=[
+  {label:"🚗 มารับเองที่ล่างหอ (ฟรีค่าส่ง)", fee:0},
   {label:"หอ VS (ส่งฟรี)", fee:0},
   {label:"หน้า ม.เกษตร กำแพงแสน (หอพัก/ร้านค้า)", fee:10},
   {label:"หอมาตาล/AW/นกฯ/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
