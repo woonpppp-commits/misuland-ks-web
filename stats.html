@@ -50,6 +50,21 @@ tr.repeat td{background:#FBF1DD;}
 .tag-rp{font-size:10px;font-weight:700;background:#D4EFDF;color:#1E8449;padding:1px 6px;border-radius:8px;margin-left:5px;}
 .empty{color:var(--muted);font-size:14px;padding:14px 0;text-align:center;}
 .muted{color:var(--muted);font-size:12px;}
+
+/* กราฟแท่งแนวตั้ง (เทรนด์) */
+.vbars{display:flex;align-items:flex-end;gap:5px;height:140px;overflow-x:auto;padding:18px 2px 0;}
+.vbar{flex:1 0 auto;min-width:20px;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;}
+.vbar .vval{font-size:9px;color:var(--green);font-weight:700;margin-bottom:2px;white-space:nowrap;}
+.vbar .vcol{width:72%;min-height:3px;background:linear-gradient(180deg,#F4A259,var(--accent));border-radius:5px 5px 0 0;transition:.2s;}
+.vbar.cur .vcol{background:linear-gradient(180deg,#37805F,var(--green));}
+.vbar .vlb{font-size:9.5px;color:var(--brown2);margin-top:4px;white-space:nowrap;}
+/* MoM headline */
+.mom{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.mom .big{font-size:26px;font-weight:800;}
+.delta{font-size:13px;font-weight:800;padding:2px 9px;border-radius:12px;}
+.delta.up{background:#D4EFDF;color:#1E8449;}
+.delta.down{background:#FADBD8;color:#C0392B;}
+.delta.flat{background:var(--sand);color:var(--brown2);}
 </style>
 </head>
 <body>
@@ -82,6 +97,7 @@ tr.repeat td{background:#FBF1DD;}
 
   <div class="kpis" id="kpis"></div>
   <div id="body"></div>
+  <div id="monthly"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -126,6 +142,34 @@ async function load(){
   const {data,error}=await q.order('created_at',{ascending:true});
   if(error){body.innerHTML='<div class="empty">โหลดไม่ได้: '+error.message+'</div>';return;}
   render(data||[]);
+  loadMonthly();
+}
+
+// ----- เทียบรายเดือน 6 เดือนล่าสุด -----
+function monthsBack(n){const out=[];const d=new Date(thaiDate()+'T00:00:00');d.setDate(1);for(let i=n-1;i>=0;i--){const x=new Date(d);x.setMonth(x.getMonth()-i);out.push(x.toISOString().slice(0,7));}return out;}
+async function loadMonthly(){
+  const el=document.getElementById('monthly');
+  const months=monthsBack(6); const start=months[0]+'-01';
+  const {data,error}=await supa.from('orders').select('order_date,total,status,items').gte('order_date',start);
+  if(error){el.innerHTML='';return;}
+  const valid=(data||[]).filter(o=>o.status!=='ยกเลิก');
+  const agg={}; months.forEach(m=>agg[m]={rev:0,orders:0});
+  valid.forEach(o=>{const m=(o.order_date||'').slice(0,7); if(agg[m]){agg[m].rev+=o.total||0;agg[m].orders++;}});
+  const cur=thaiMonth();
+  const curRev=agg[cur]?agg[cur].rev:0;
+  const prevM=months[months.indexOf(cur)-1]; const prevRev=prevM&&agg[prevM]?agg[prevM].rev:0;
+  let delta='';
+  if(prevRev>0){const pct=Math.round((curRev-prevRev)/prevRev*100);const cls=pct>0?'up':pct<0?'down':'flat';delta=`<span class="delta ${cls}">${pct>0?'▲ +':pct<0?'▼ ':''}${pct}% <span style="font-weight:500">เทียบเดือนก่อน</span></span>`;}
+  else delta='<span class="delta flat">ไม่มียอดเดือนก่อนเทียบ</span>';
+  const maxR=Math.max(...months.map(m=>agg[m].rev),1);
+  const bars=months.map(m=>`<div class="vbar ${m===cur?'cur':''}"><div class="vval">${agg[m].rev?'฿'+(agg[m].rev>=1000?(agg[m].rev/1000).toFixed(1)+'k':agg[m].rev):''}</div><div class="vcol" style="height:${agg[m].rev/maxR*100}%"></div><div class="vlb">${m.slice(5)}/${m.slice(2,4)}</div></div>`).join('');
+  const rows=months.map((m,i)=>{const r=agg[m].rev;const pv=i>0?agg[months[i-1]].rev:0;let d='—';if(pv>0){const p=Math.round((r-pv)/pv*100);d=`<span class="${p>0?'':''}" style="color:${p>0?'#1E8449':p<0?'#C0392B':'#A0704A'};font-weight:700">${p>0?'+':''}${p}%</span>`;}return `<tr${m===cur?' style="font-weight:800"':''}><td>${m}</td><td class="num">${agg[m].orders}</td><td class="num">${baht(r)}</td><td class="num">${d}</td></tr>`;}).join('');
+  el.innerHTML=`<div class="card">
+    <h2>📈 เทียบรายเดือน (6 เดือนล่าสุด)</h2>
+    <div class="mom"><span class="muted">เดือนนี้ (${cur})</span><span class="big">${baht(curRev)}</span>${delta}</div>
+    <div class="vbars">${bars}</div>
+    <table style="margin-top:12px"><thead><tr><th>เดือน</th><th class="num">ออเดอร์</th><th class="num">ยอดขาย</th><th class="num">เทียบเดือนก่อน</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
 }
 
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -194,8 +238,11 @@ function render(all){
     const dayList=Object.entries(day).sort((a,b)=>a[0].localeCompare(b[0]));
     let rows=dayList.map(([d,v])=>`<tr><td>${d.slice(8)}</td><td class="num">${v.c}</td><td class="num">${v.p}</td><td class="num">${baht(v.r)}</td></tr>`).join('');
     rows+=`<tr style="font-weight:800"><td>รวม</td><td class="num">${orders}</td><td class="num">${pieces}</td><td class="num">${baht(revenue)}</td></tr>`;
+    const maxD=Math.max(...dayList.map(d=>d[1].r),1);
+    const trend=dayList.map(([d,v])=>`<div class="vbar"><div class="vval">${v.r>=1000?(v.r/1000).toFixed(1)+'k':v.r}</div><div class="vcol" style="height:${v.r/maxD*100}%"></div><div class="vlb">${d.slice(8)}</div></div>`).join('');
     const c=document.createElement('div');c.className='card';
-    c.innerHTML=`<h2>📅 ยอดรายวัน (${dayList.length} วันที่ขาย)</h2><table><thead><tr><th>วันที่</th><th class="num">ออเดอร์</th><th class="num">ชิ้น</th><th class="num">ยอด</th></tr></thead><tbody>${rows}</tbody></table>`;
+    c.innerHTML=`<h2>📈 เทรนด์ยอดรายวัน (${dayList.length} วันที่ขาย)</h2><div class="vbars">${trend}</div>
+      <table style="margin-top:12px"><thead><tr><th>วันที่</th><th class="num">ออเดอร์</th><th class="num">ชิ้น</th><th class="num">ยอด</th></tr></thead><tbody>${rows}</tbody></table>`;
     body.appendChild(c);
   }
 
