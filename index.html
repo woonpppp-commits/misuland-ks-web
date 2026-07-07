@@ -91,6 +91,12 @@ section:first-of-type{margin-top:20px;}
 .item.has button.minus{visibility:visible;}
 .item.has{border-color:var(--accent2);background:linear-gradient(160deg,#FFF6EE,#FFEDDC);box-shadow:0 10px 22px -14px rgba(232,116,59,.55);}
 .item.has .ava{background:linear-gradient(160deg,#FFE6CC,#FBD7B0);}
+.item.soldout{opacity:.55;filter:grayscale(.5);}
+.item.soldout .step{display:none;}
+.item.soldout .ava{pointer-events:none;}
+.item .soldtag{display:none;font-size:10.5px;font-weight:800;color:#fff;background:var(--muted);padding:2px 8px;border-radius:8px;letter-spacing:.3px;}
+.item.soldout .soldtag{display:inline-block;}
+.item.soldout .pr{text-decoration:line-through;}
 
 /* ===== form ===== */
 .field{margin-bottom:13px;}
@@ -166,11 +172,6 @@ section:first-of-type{margin-top:20px;}
 
 <div class="wrap">
 
-  <div id="promo-banner" style="display:none;margin-top:18px;background:linear-gradient(135deg,#E8F5E9,#D7ECD9);border:2px dashed #7FB98A;border-radius:18px;padding:14px 16px;text-align:center;font-weight:800;color:#2D6A4F;font-size:15.5px;box-shadow:0 10px 30px -18px rgba(92,45,10,.5);">
-    🎉 ฉลอง OpenChat ครบ 1,000 คน!<br>
-    <span style="font-size:19px">ลด 10% ทุกเมนู</span> <span style="font-weight:600;font-size:12.5px">(6–8 ก.ค. ระบบลดให้อัตโนมัติตอนคิดเงิน)</span>
-  </div>
-
   <button class="menu-full-btn" id="menuFullBtn">📋 ดูเมนูรวมทั้งแผ่น</button>
 
   <section>
@@ -213,7 +214,7 @@ section:first-of-type{margin-top:20px;}
 <div class="bar">
   <div class="barin">
     <div class="barsum">
-      <div class="n"><span id="cnt">0</span> ชิ้น · ค่าส่ง ฿<span id="ship">0</span><span id="promo-line" style="color:#2D6A4F;font-weight:700"></span></div>
+      <div class="n"><span id="cnt">0</span> ชิ้น · ค่าส่ง ฿<span id="ship">0</span></div>
       <div class="t">฿<span id="total">0</span></div>
     </div>
     <button class="submit" id="submit" disabled>ส่งออเดอร์</button>
@@ -286,11 +287,8 @@ const ZONES=[
   {label:"คณะสัตวแพทย์/รพ.สัตว์/ตึกวิศวะ/สาธิต", fee:20},
   {label:"หอพักข้างมอ/รพ.กำแพงแสน", fee:30},
 ];
-// ----- 🎉 โปรฉลอง OpenChat ครบ 1,000 คน (ลดอัตโนมัติตามช่วงวัน หมดโปรราคากลับปกติเอง) -----
-const PROMO={pct:10,start:"2026-07-06",end:"2026-07-08",label:"ฉลอง OpenChat ครบ 1,000 คน"};
-function promoOn(){const d=new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);return d>=PROMO.start&&d<=PROMO.end;}
-
-const qty={}; let round=null; let slipFile=null; let roundClosed={}; let zoneFee=0;
+const qty={}; let round=null; let slipFile=null; let roundClosed={}; let zoneFee=0; let menuAvail={};
+function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
 
 // zone select
 const zoneEl=document.getElementById('f-zone');
@@ -321,11 +319,11 @@ MENU.forEach(c=>{
       ? `<div class="ava zoomable"><img src="${it.img}" alt="${it.name}" loading="lazy"><span class="zoom">🔍 ดูรูป</span></div>`
       : `<div class="ava">${it.emoji||'🍞'}</div>`;
     row.innerHTML=`${ava}
-      <div class="info"><div class="nm">${it.name}${tag}</div><div class="pr">฿${it.price}</div></div>
+      <div class="info"><div class="nm">${it.name}${tag}<span class="soldtag">🔕 หมดวันนี้</span></div><div class="pr">฿${it.price}</div></div>
       <div class="step"><button class="minus">−</button><span class="qty">0</span><button class="plus">+</button></div>`;
     if(it.img){ row.querySelector('.ava').onclick=()=>openLB(it.img, `${it.name} · ฿${it.price}`); }
     const q=row.querySelector('.qty');
-    row.querySelector('.plus').onclick=()=>{qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
+    row.querySelector('.plus').onclick=()=>{if(!isAvail(it.name))return;qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
     row.querySelector('.minus').onclick=()=>{qty[it.name]=Math.max(0,(qty[it.name]||0)-1);q.textContent=qty[it.name];if(!qty[it.name])row.classList.remove('has');recalc();};
     menuEl.appendChild(row);
   });
@@ -344,17 +342,14 @@ function recalc(){
   const items=buildItems();
   const cnt=items.reduce((s,i)=>s+i.qty,0);
   const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
-  const discount=promoOn()&&cnt>0?Math.round(subtotal*PROMO.pct/100):0;
   const shipping=cnt>0?zoneFee:0;
-  const total=subtotal-discount+shipping;
+  const total=subtotal+shipping;
   document.getElementById('cnt').textContent=cnt;
   document.getElementById('ship').textContent=shipping;
   document.getElementById('total').textContent=total;
-  const pl=document.getElementById('promo-line');
-  if(pl) pl.textContent=discount>0?` · 🎉ลด${PROMO.pct}% −฿${discount}`:'';
   const zoneOk=document.getElementById('f-zone').value!=='';
   document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile&&zoneOk);
-  return {items,cnt,subtotal,discount,shipping,total};
+  return {items,cnt,subtotal,shipping,total};
 }
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
@@ -373,25 +368,41 @@ function applyRoundUI(){
     if(closed && round===n){ round=null; el.classList.remove('active'); recalc(); }
   });
 }
-// โชว์แบนเนอร์โปรเฉพาะช่วงวันโปร
-if(promoOn()){const b=document.getElementById('promo-banner');if(b)b.style.display='block';}
-
 supa.channel('rs-rt').on('postgres_changes',{event:'*',schema:'public',table:'round_state'},payload=>{
   const rec=payload.new||payload.old;
   if(rec && rec.order_date===thaiDate()){ roundClosed[rec.round]=rec.closed; applyRoundUI(); }
 }).subscribe();
 loadRoundState();
 
+// ----- เมนูพร้อมขาย/ปิด (sync กับ dashboard) -----
+async function loadMenuState(){
+  const {data}=await supa.from('menu_state').select('item,available');
+  menuAvail={}; (data||[]).forEach(r=>menuAvail[r.item]=r.available);
+  applyMenuUI();
+}
+function applyMenuUI(){
+  document.querySelectorAll('.item').forEach(el=>{
+    const name=el.dataset.name, ok=isAvail(name);
+    el.classList.toggle('soldout',!ok);
+    if(!ok && qty[name]>0){ qty[name]=0; const q=el.querySelector('.qty'); if(q)q.textContent='0'; el.classList.remove('has'); recalc(); }
+  });
+}
+supa.channel('ms-rt').on('postgres_changes',{event:'*',schema:'public',table:'menu_state'},payload=>{
+  const rec=payload.new||payload.old;
+  if(rec) menuAvail[rec.item]=payload.eventType==='DELETE'?true:rec.available;
+  applyMenuUI();
+}).subscribe();
+loadMenuState();
+
 // submit
 document.getElementById('submit').onclick=async()=>{
   const btn=document.getElementById('submit');
-  const {items,cnt,subtotal,discount,shipping,total}=recalc();
+  const {items,cnt,subtotal,shipping,total}=recalc();
   const name=document.getElementById('f-name').value.trim();
   const contact=document.getElementById('f-contact').value.trim();
   const room=document.getElementById('f-dorm').value.trim();
   const zoneIdx=document.getElementById('f-zone').value;
   let note=document.getElementById('f-note').value.trim();
-  if(discount>0) note=`🎉โปร1000คน ลด${PROMO.pct}% (−${discount}฿) ${note?'· '+note:''}`.trim();
   document.getElementById('err').style.display='none';
   if(!round) return showErr("เลือกรอบส่งก่อนน้า");
   if(isClosed(round)) return showErr("รอบนี้ปิดอยู่ เลือกรอบอื่นน้า");
