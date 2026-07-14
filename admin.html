@@ -39,6 +39,18 @@ header button#clearday{border:none;border-radius:10px;padding:7px 12px;backgroun
 .pill-closed{font-size:11.5px;font-weight:700;background:#922B21;color:#fff;padding:2px 9px;border-radius:12px;}
 .empty{color:var(--muted);font-size:14px;padding:10px 0;}
 
+/* เมนูพร้อมขาย/ปิด */
+.menupanel{background:var(--cream2);border:1px solid var(--border);border-radius:16px;padding:14px;margin:16px 0;}
+.menupanel .ph{font-size:15px;font-weight:800;margin-bottom:4px;}
+.menupanel .psub{font-size:12.5px;color:var(--muted);margin-bottom:11px;}
+.mchips{display:flex;flex-wrap:wrap;gap:9px;}
+.mchip{border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.15s;}
+.mchip.on{background:#D4EFDF;border-color:#A9DFBF;color:#1E8449;}
+.mchip.off{background:#F2E3DF;border-color:#E0B4AC;color:#922B21;text-decoration:line-through;}
+.mchip .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+.mchip.on .dot{background:#27AE60;}
+.mchip.off .dot{background:#C0392B;}
+
 .order{background:var(--cream2);border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
 .order.s-ยกเลิก{opacity:.5;}
 .order.s-ส่งแล้ว{opacity:.7;}
@@ -84,6 +96,11 @@ header button#clearday{border:none;border-radius:10px;padding:7px 12px;backgroun
 </header>
 
 <div class="wrap">
+  <div class="menupanel">
+    <div class="ph">🍞 เมนูพร้อมขายวันนี้</div>
+    <div class="psub">กดเมนูเพื่อปิด/เปิด · ปิดแล้วลูกค้าจะสั่งไม่ได้ทันที (ค้างจนกดเปิดใหม่)</div>
+    <div class="mchips" id="mchips"></div>
+  </div>
   <div class="summary" id="summary"></div>
   <div id="board"></div>
 </div>
@@ -96,6 +113,19 @@ const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
 const ROUNDS=[1,2,3,4,5];
 const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30",5:"พร้อมส่งเลย · ตอนคิวว่าง"};
 const RLABEL=r=>r===5?'รับเลย':'รอบ '+r;
+// ชื่อเมนูต้องตรงกับ MENU ใน index.html เป๊ะ (ใช้เป็นคีย์ menu_state)
+const MENU_ITEMS=[
+  {name:"รสครีม (Signature)",emoji:"🍦"},
+  {name:"ช็อกโกแลต",emoji:"🍫"},
+  {name:"มัทฉะ",emoji:"🍵"},
+  {name:"คัสตาร์ดหน้าไหม้",emoji:"🍮"},
+  {name:"ช็อกกล้วย",emoji:"🍌"},
+  {name:"ครีมสตรอเบอรี่",emoji:"🍓"},
+  {name:"ช็อกโกแลตดูไบ",emoji:"💚"},
+  {name:"บิสคอฟครันชี่",emoji:"🍪"},
+  {name:"Shine Muscat Yogurt",emoji:"🍇"},
+  {name:"Mallow Melt",emoji:"🔥"},
+];
 // รอบ "รับเลย" (5) ปกติปิด เปิดเมื่อ round_state.closed=false เท่านั้น
 function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
 let _ac=null; // audio context สำหรับเสียงแจ้งเตือน
@@ -129,16 +159,39 @@ function tryPass(){
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 const dateEl=document.getElementById('date');
 
-let rows=[]; let roundClosed={};
+let rows=[]; let roundClosed={}; let menuAvail={};
+function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
 async function load(){
   const d=dateEl.value||thaiDate();
-  const [o,rs]=await Promise.all([
+  const [o,rs,ms]=await Promise.all([
     supa.from('orders').select('*').eq('order_date',d).order('created_at',{ascending:true}),
     supa.from('round_state').select('round,closed').eq('order_date',d),
+    supa.from('menu_state').select('item,available'),
   ]);
   if(o.error){document.getElementById('board').innerHTML='<div class="empty">โหลดไม่ได้: '+o.error.message+'</div>';return;}
   rows=o.data||[]; roundClosed={}; (rs.data||[]).forEach(r=>roundClosed[r.round]=r.closed);
+  menuAvail={}; (ms.data||[]).forEach(r=>menuAvail[r.item]=r.available);
+  renderMenuPanel();
   render();
+}
+
+function renderMenuPanel(){
+  const el=document.getElementById('mchips'); el.innerHTML='';
+  MENU_ITEMS.forEach(it=>{
+    const ok=isAvail(it.name);
+    const chip=document.createElement('button');
+    chip.className='mchip '+(ok?'on':'off');
+    chip.innerHTML=`<span class="dot"></span>${it.emoji} ${esc(it.name)} ${ok?'':' · ปิด'}`;
+    chip.onclick=()=>toggleMenu(it.name);
+    el.appendChild(chip);
+  });
+}
+async function toggleMenu(name){
+  const prev=isAvail(name);
+  const next=!prev;
+  menuAvail[name]=next; renderMenuPanel();
+  const {error}=await supa.from('menu_state').upsert({item:name,available:next,updated_at:new Date().toISOString()},{onConflict:'item'});
+  if(error){alert('เปลี่ยนสถานะเมนูไม่สำเร็จ: '+error.message+'\n(ยังไม่ได้รัน schema-v5.sql ใน Supabase?)'); menuAvail[name]=prev; renderMenuPanel();}
 }
 function fmtTime(ts){return new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});}
 
@@ -225,7 +278,12 @@ function init(){
   document.getElementById('reload').onclick=load;
   document.getElementById('clearday').onclick=clearDay;
   supa.channel('rt').on('postgres_changes',{event:'*',schema:'public',table:'orders'},flash)
-    .on('postgres_changes',{event:'*',schema:'public',table:'round_state'},flash).subscribe();
+    .on('postgres_changes',{event:'*',schema:'public',table:'round_state'},flash)
+    .on('postgres_changes',{event:'*',schema:'public',table:'menu_state'},payload=>{
+      const rec=payload.new||payload.old;
+      if(rec) menuAvail[rec.item]=payload.eventType==='DELETE'?true:rec.available;
+      renderMenuPanel();
+    }).subscribe();
   function flash(payload){
     const d=dateEl.value||thaiDate();
     const rec=payload.new||payload.old;
