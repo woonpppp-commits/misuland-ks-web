@@ -98,7 +98,7 @@ header button#clearday{border:none;border-radius:10px;padding:7px 12px;backgroun
 <div class="wrap">
   <div class="menupanel">
     <div class="ph">🍞 เมนูพร้อมขายวันนี้</div>
-    <div class="psub">กดเมนูเพื่อปิด/เปิด · ปิดแล้วลูกค้าจะสั่งไม่ได้ทันที (ค้างจนกดเปิดใหม่)</div>
+    <div class="psub">กดเมนูเพื่อปิด/เปิด · ปิดแล้วลูกค้าจะสั่งไม่ได้ทันที (ค้างจนกดเปิดใหม่) · <b id="mcount">13</b> เมนู (อัปเดต 14 ส.ค. 69)</div>
     <div class="mchips" id="mchips"></div>
   </div>
   <div class="summary" id="summary"></div>
@@ -110,9 +110,9 @@ header button#clearday{border:none;border-radius:10px;padding:7px 12px;backgroun
 <script>
 const CFG=window.MISULAND_CONFIG;
 const supa=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
-const ROUNDS=[1,2,3,4,5];
-const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30",5:"พร้อมส่งเลย · ตอนคิวว่าง"};
-const RLABEL=r=>r===5?'รับเลย':'รอบ '+r;
+const ROUNDS=[1,2,3,4,5,6];
+const ROUND_TIME={1:"16:00–16:45",2:"18:00–18:45",3:"19:45–20:30",4:"ไม่เกิน 21:30",5:"พร้อมส่งเลย · ตอนคิวว่าง",6:"รับที่ตลาดลานสบาย"};
+const RLABEL=r=>r===5?'รับเลย':(r===6?'หน้าร้าน':'รอบ '+r);
 // ชื่อเมนูต้องตรงกับ MENU ใน index.html เป๊ะ (ใช้เป็นคีย์ menu_state)
 const MENU_ITEMS=[
   {name:"รสครีม (Signature)",emoji:"🍦"},
@@ -125,6 +125,9 @@ const MENU_ITEMS=[
   {name:"บิสคอฟครันชี่",emoji:"🍪"},
   {name:"Shine Muscat Yogurt",emoji:"🍇"},
   {name:"Mallow Melt",emoji:"🔥"},
+  {name:"โอริโอ้",emoji:"🍪"},
+  {name:"ช็อกครันชี่",emoji:"🍫"},
+  {name:"ช็อกสตรอ",emoji:"🍓"},
 ];
 // รอบ "รับเลย" (5) ปกติปิด เปิดเมื่อ round_state.closed=false เท่านั้น
 function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
@@ -176,6 +179,7 @@ async function load(){
 }
 
 function renderMenuPanel(){
+  document.getElementById('mcount').textContent=MENU_ITEMS.length;
   const el=document.getElementById('mchips'); el.innerHTML='';
   MENU_ITEMS.forEach(it=>{
     const ok=isAvail(it.name);
