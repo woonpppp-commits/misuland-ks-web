@@ -142,6 +142,8 @@ section:first-of-type{margin-top:20px;}
 .ov-card p{font-size:14px;color:var(--brown2);}
 .ov-card a.line{display:inline-flex;gap:7px;align-items:center;background:#06C755;color:#fff;padding:12px 22px;border-radius:26px;font-weight:700;margin-top:16px;box-shadow:0 10px 20px -10px rgba(6,199,85,.6);}
 .ov-card button.close{margin-top:14px;background:none;border:none;color:var(--muted);font-size:14px;text-decoration:underline;cursor:pointer;}
+.point-btn{display:inline-flex;gap:7px;align-items:center;justify-content:center;background:linear-gradient(160deg,#F4A259,#E8743B);color:#fff;padding:12px 22px;border-radius:26px;font-weight:700;font-size:15px;border:none;cursor:pointer;font-family:inherit;box-shadow:0 10px 20px -10px rgba(232,116,59,.6);transition:.15s;}
+.point-btn:active{transform:scale(.97);}
 .hint{font-size:12.5px;color:var(--muted);margin-top:8px;}
 /* ===== หน้าสรุปออเดอร์ก่อนยืนยัน ===== */
 .rv-card{text-align:left;max-width:420px;max-height:88vh;overflow:auto;padding:26px 20px;}
@@ -179,9 +181,9 @@ section:first-of-type{margin-top:20px;}
   <div class="wrap hin">
     <img src="assets/logo.png" alt="Misuland">
     <h1>กำแพงแสน · สั่งจองล่วงหน้า</h1>
-    <p>เลือกเมนู → เลือกรอบส่ง → โอน+แนบสลิป = คอนเฟิร์มคิวเลย 💛</p>
+    <p>เลือกเมนู → กรอกจุดจัดส่ง → โอน+แนบสลิป = คอนเฟิร์มคิวเลย 💛</p>
     <div class="badges-row">
-      <span class="chip">🚚 ส่งถึงหอ</span>
+      <span class="chip">🚚 สั่งอิสระ ส่งถึงหอ</span>
       <span class="chip">🏪 รับเองหน้าร้านได้</span>
       <span class="chip">🔥 ทอดสดทุกออเดอร์</span>
     </div>
@@ -191,11 +193,6 @@ section:first-of-type{margin-top:20px;}
 <div class="wrap">
 
   <button class="menu-full-btn" id="menuFullBtn">📋 ดูเมนูรวมทั้งแผ่น</button>
-
-  <section>
-    <div class="label"><span class="ic">⏰</span>เลือกรอบส่ง / รับของ <small>รอบส่ง = ของถึงตามเวลานี้</small></div>
-    <div class="rounds" id="rounds"></div>
-  </section>
 
   <section>
     <div class="label"><span class="ic">🍞</span>เลือกเมนู <small>กด + เพื่อเพิ่มจำนวน</small></div>
@@ -209,7 +206,7 @@ section:first-of-type{margin-top:20px;}
     <div class="field"><label>รับเอง หรือ จัดส่ง? 🚚 <small style="color:var(--muted);font-weight:500">(รับเองหน้าร้าน ตลาดลานสบาย = ฟรี 0฿)</small></label>
       <select id="f-zone"><option value="">— เลือกรับเอง / โซนจัดส่ง —</option></select>
       <div class="zhint" id="zone-hint"></div></div>
-    <div class="field" id="dorm-field"><label>หอ/ตึก + ห้อง (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B ห้อง 210"></div>
+    <div class="field" id="dorm-field"><label>หอ/ตึก (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B"></div>
     <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><textarea id="f-note" rows="2" placeholder="เช่น แจ้งสิทธิ์ลูกค้าวันแรก 25 มิ.ย."></textarea></div>
   </section>
 
@@ -259,13 +256,32 @@ section:first-of-type{margin-top:20px;}
     <div>คิวของคุณ</div>
     <div class="qno">#<span id="ov-q">-</span></div>
     <div class="meta">
-      <div><span>รอบ</span><b id="ov-round">-</b></div>
-      <div><span id="ov-timelabel">ส่งถึงประมาณ</span><b id="ov-time">-</b></div>
+      <div><span>การรับสินค้า</span><b id="ov-round">-</b></div>
+      <div><span id="ov-timelabel">การจัดส่ง</span><b id="ov-time">-</b></div>
       <div><span>ยอดรวม (รวมค่าส่ง)</span><b>฿<span id="ov-total">-</span></b></div>
     </div>
-    <p>ถึงรอบเดี๋ยวร้านทักไปน้า ขอบคุณค่า 🤍</p>
-    <a class="line" id="ov-line" href="#" target="_blank">💬 แอด LINE ร้าน รับคูปองส่วนลด</a>
-    <br><button class="close" id="ov-close">ปิด / สั่งเพิ่ม</button>
+    <p>จัดส่งตามคิวทันทีน้า รอรับความอร่อยได้เลย ขอบคุณค่า 🤍</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;align-items:center;">
+      <button class="point-btn" id="ov-point-btn" type="button">⭐ สะสมแต้ม</button>
+      <a class="line" id="ov-line" href="#" target="_blank" style="margin-top:0;">💬 แอด LINE ร้าน รับคูปองส่วนลด</a>
+    </div>
+    <button class="close" id="ov-close" style="margin-top:14px;">ปิด / สั่งเพิ่ม</button>
+  </div>
+</div>
+
+<div class="ov" id="points-modal">
+  <div class="ov-card" style="max-width:350px;padding:26px 20px;">
+    <div style="font-size:36px;margin-bottom:4px;">⭐</div>
+    <h2 style="font-size:20px;margin-bottom:6px;">สะสมแต้ม Misuland</h2>
+    <p style="font-size:13px;color:var(--brown2);margin-bottom:14px;line-height:1.4;">แคปหน้าจอนี้ หรือสแกน QR Code เพื่อเปิดบัตรสะสมแต้มใน LINE ร้าน 💛</p>
+    <div style="background:#fff;padding:12px;border-radius:18px;border:1.5px solid var(--border);display:inline-block;box-shadow:var(--shadow-xs);">
+      <img src="assets/qr-points.png" alt="QR สะสมแต้ม Misuland" style="width:200px;height:200px;object-fit:contain;margin:0 auto;border-radius:10px;">
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px;font-weight:600;">LINE OA: @605cjoud (มี @)</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;align-items:center;">
+      <a class="line" href="https://line.me/R/ti/p/%40605cjoud" target="_blank" style="margin-top:0;">💬 เปิด LINE สะสมแต้ม</a>
+      <button class="close" id="points-close" type="button" style="margin-top:6px;">✕ ปิดหน้าต่างนี้</button>
+    </div>
   </div>
 </div>
 
@@ -282,21 +298,6 @@ function openLB(src,cap,full){const lb=document.getElementById('lb');document.ge
 function closeLB(){document.getElementById('lb').classList.remove('show');}
 document.getElementById('lb').onclick=e=>{if(e.target.id==='lb'||e.target.id==='lb-x')closeLB();};
 document.getElementById('menuFullBtn').onclick=()=>openLB('assets/menu/menu-full.jpg','เมนูรวม Misuland กำแพงแสน',true);
-
-// ----- รอบส่ง -----
-const ROUNDS=[
-  {n:1,cut:"14:00",send:"16:00–16:45"},
-  {n:2,cut:"16:30",send:"18:00–18:45"},
-  {n:3,cut:"18:30",send:"19:45–20:30"},
-  {n:4,cut:"20:00",send:"ไม่เกิน 21:30"},
-  {n:5,label:"รับเลย",send:"พร้อมส่งเลย · ตอนคิวว่าง",instant:true},
-  {n:6,label:"หน้าร้าน",send:"รับที่ตลาดลานสบาย",store:true},
-];
-const ROUND_TIME=Object.fromEntries(ROUNDS.map(r=>[r.n,r.send]));
-const RLABEL=n=>{const r=ROUNDS.find(x=>x.n===n); return r?(r.label||'รอบ '+r.n):'-';};
-// รอบ "รับเลย" (5) ปกติปิดอยู่ จะเปิดต่อเมื่อร้านกดเปิด (round_state.closed=false) เท่านั้น
-// รอบ "หน้าร้าน" (6) เปิดค้างไว้ตลอด ปิดได้จากแอดมินเหมือนรอบ 1-4
-function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
 
 // ----- เมนู (ขนมปังทอดเท่านั้น) -----
 const MENU=[
@@ -319,14 +320,13 @@ const MENU=[
 
 const ZONES=[
   {label:"🏪 รับเองหน้าร้าน ตลาดลานสบาย (ฟรีค่าส่ง)", fee:0, pickup:true},
-  {label:"หอ VS", fee:10},
   {label:"หน้า ม.เกษตร กำแพงแสน (หอพัก/ร้านค้า)", fee:10},
-  {label:"หอมาตาล/AW/นกฯ/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
+  {label:"หอมาตาล/AW/นก9/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
   {label:"หอในรัฐ/เอก/นานาชาติ/บุคลากร/ร้อยพฤกษา", fee:20},
   {label:"คณะสัตวแพทย์/รพ.สัตว์/ตึกวิศวะ/สาธิต", fee:20},
   {label:"หอพักข้างมอ/รพ.กำแพงแสน", fee:30},
 ];
-const qty={}; let round=null; let slipFile=null; let roundClosed={}; let menuAvail={};
+const qty={}; let slipFile=null; let menuAvail={};
 function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
 
 // zone select
@@ -335,7 +335,7 @@ ZONES.forEach((z,i)=>{const o=document.createElement('option');o.value=i;o.textC
 function curZone(){ const v=document.getElementById('f-zone').value; return v===''?null:ZONES[+v]; }
 function applyZoneUI(){
   const z=curZone();
-  // รับเองหน้าร้าน = ไม่ต้องกรอกหอ/ห้อง
+  // รับเองหน้าร้าน = ไม่ต้องกรอกหอ/ตึก
   document.getElementById('dorm-field').style.display=(z&&z.pickup)?'none':'block';
   recalc();
 }
@@ -344,37 +344,12 @@ function zoneHint(m){ const e=document.getElementById('zone-hint'); e.textConten
 zoneEl.onchange=()=>{
   zoneHint(null);
   const z=curZone();
-  if(z&&z.pickup){                          // รับเองหน้าร้าน → ผูกกับรอบหน้าร้านเสมอ
-    if(isClosed(6)){ setZone(null); return showErr('ตอนนี้ปิดรับหน้าร้านแล้ว เลือกโซนจัดส่งแทนน้า'); }
-    selectRound(6); zoneHint('เลือกรอบ "หน้าร้าน" ให้แล้วน้า — ค่าส่งฟรี');
+  if(z&&z.pickup){
+    zoneHint('รับเองหน้าร้าน ตลาดลานสบาย — ค่าส่งฟรี 💛');
   }
-  else if(round===6){ selectRound(null); zoneHint('เลือกรอบส่งใหม่ด้วยน้า (เปลี่ยนจากรับเองเป็นจัดส่งแล้ว)'); }
   applyZoneUI();
 };
 applyZoneUI(); // เผื่อเบราว์เซอร์คืนค่าช่องโซนหลังรีเฟรช (ไม่ยิง change)
-
-// render rounds
-const roundsEl=document.getElementById('rounds');
-ROUNDS.forEach(r=>{
-  const el=document.createElement('div'); el.className='round'; el.dataset.round=r.n;
-  el.innerHTML=`<b>${r.label||'รอบ '+r.n}</b><span>${(r.instant||r.store)?r.send:'ส่งถึง '+r.send}</span><div class="full" style="display:none">${r.instant?'ยังไม่เปิด':(r.store?'ปิดแล้ว':'เต็มแล้ว')}</div>`;
-  el.onclick=()=>{
-    if(isClosed(r.n)) return;
-    selectRound(r.n);
-    const z=curZone();
-    zoneHint(null);
-    if(r.n===6){                                  // รอบหน้าร้าน = รับเองหน้าร้านเสมอ
-      if(!z||!z.pickup){ setZone(0); zoneHint('เปลี่ยนเป็นรับเองหน้าร้านให้แล้ว — ค่าส่งฟรี เช็คยอดใหม่น้า'); }
-    }
-    else if(z&&z.pickup){ setZone(null); zoneHint('เลือกโซนจัดส่งใหม่ด้วยน้า (มีค่าส่งเพิ่ม)'); }
-    recalc();
-  };
-  roundsEl.appendChild(el);
-});
-function selectRound(n){
-  round=n;
-  document.querySelectorAll('.round').forEach(x=>x.classList.toggle('active',+x.dataset.round===n));
-}
 
 // render menu
 const menuEl=document.getElementById('menu');
@@ -417,31 +392,11 @@ function recalc(){
   document.getElementById('ship').textContent=shipping;
   document.getElementById('total').textContent=total;
   const zoneOk=document.getElementById('f-zone').value!=='';
-  document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile&&zoneOk);
+  document.getElementById('submit').disabled=!(cnt>0&&slipFile&&zoneOk);
   return {items,cnt,subtotal,shipping,total};
 }
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
-
-// ----- สถานะปิดรอบ (sync กับ dashboard) -----
-async function loadRoundState(){
-  const {data}=await supa.from('round_state').select('round,closed').eq('order_date',thaiDate());
-  roundClosed={}; (data||[]).forEach(r=>roundClosed[r.round]=r.closed);
-  applyRoundUI();
-}
-function applyRoundUI(){
-  document.querySelectorAll('.round').forEach(el=>{
-    const n=+el.dataset.round, closed=isClosed(n);
-    el.classList.toggle('closed',closed);
-    el.querySelector('.full').style.display=closed?'flex':'none';
-    if(closed && round===n){ round=null; el.classList.remove('active'); recalc(); }
-  });
-}
-supa.channel('rs-rt').on('postgres_changes',{event:'*',schema:'public',table:'round_state'},payload=>{
-  const rec=payload.new||payload.old;
-  if(rec && rec.order_date===thaiDate()){ roundClosed[rec.round]=rec.closed; applyRoundUI(); }
-}).subscribe();
-loadRoundState();
 
 // ----- เมนูพร้อมขาย/ปิด (sync กับ dashboard) -----
 async function loadMenuState(){
@@ -477,14 +432,10 @@ function gather(){
     note:document.getElementById('f-note').value.trim()};
 }
 function validate(o){
-  if(!round) return "เลือกรอบส่งก่อนน้า";
-  if(isClosed(round)) return "รอบนี้ปิดอยู่ เลือกรอบอื่นน้า";
   if(o.cnt<1) return "ยังไม่ได้เลือกเมนูเลย";
   if(o.zoneIdx==='') return "เลือกรับเอง / โซนจัดส่งก่อนน้า";
-  if(round===6&&!o.zone.pickup) return 'รอบ "หน้าร้าน" ต้องเลือก "รับเองหน้าร้าน ตลาดลานสบาย" ในช่องจัดส่งน้า';
-  if(o.zone.pickup&&round!==6) return 'รับเองหน้าร้าน ให้เลือกรอบ "หน้าร้าน" น้า';
   if(!o.name||!o.contact) return "กรอกชื่อ/เบอร์ให้ครบน้า";
-  if(!o.zone.pickup&&!o.room) return "กรอกหอ/ตึก + ห้อง ให้ชัดน้า";
+  if(!o.zone.pickup&&!o.room) return "กรอกหอ/ตึกให้ชัดน้า";
   if(!slipFile) return "แนบสลิปโอนด้วยน้า";
   return null;
 }
@@ -505,8 +456,8 @@ function openReview(o){
     <div class="rv-h">🍞 เมนูที่สั่ง (${o.cnt} ชิ้น)</div>
     ${lines}
     <div class="rv-hr"></div>
-    <div class="rv-row"><span>รอบ</span><b>${RLABEL(round)}</b></div>
-    <div class="rv-row"><span>${round===6?'รับของ':'ส่งถึงประมาณ'}</span><b>${ROUND_TIME[round]}</b></div>
+    <div class="rv-row"><span>การรับสินค้า</span><b>${o.zone.pickup?'🏪 รับเองหน้าร้าน':'🚚 จัดส่งเดลิเวอรี'}</b></div>
+    <div class="rv-row"><span>เวลา</span><b>${o.zone.pickup?'รับที่ตลาดลานสบาย':'จัดส่งตามคิวทันที (สั่งอิสระ)'}</b></div>
     <div class="rv-hr"></div>
     <div class="rv-h">📍 ผู้สั่ง</div>
     <div class="rv-row"><span>ชื่อ</span><b>${esc(o.name)}</b></div>
@@ -546,6 +497,7 @@ document.getElementById('rv-go').onclick=async()=>{
     const slip_url=supa.storage.from('slips').getPublicUrl(path).data.publicUrl;
 
     const order_date=thaiDate();
+    const round=o.zone.pickup?6:1; // 6 = หน้าร้าน, 1 = จัดส่ง (สั่งอิสระ)
     const ins=await supa.from('orders').insert({order_date,round,name,contact,dorm,items,total,shipping,slip_url,note}).select().single();
     if(ins.error) throw ins.error;
 
@@ -554,9 +506,9 @@ document.getElementById('rv-go').onclick=async()=>{
     const qno=cntRes.count||1; // เลขคิวรันต่อเนื่องทั้งวัน (ไม่รีเซ็ตตามรอบ)
 
     document.getElementById('ov-q').textContent=qno;
-    document.getElementById('ov-round').textContent=RLABEL(round);
-    document.getElementById('ov-timelabel').textContent=round===6?'รับของ':'ส่งถึงประมาณ';
-    document.getElementById('ov-time').textContent=ROUND_TIME[round];
+    document.getElementById('ov-round').textContent=o.zone.pickup?'🏪 รับเองหน้าร้าน':'🚚 จัดส่งเดลิเวอรี';
+    document.getElementById('ov-timelabel').textContent=o.zone.pickup?'จุดรับ':'การจัดส่ง';
+    document.getElementById('ov-time').textContent=o.zone.pickup?'ตลาดลานสบาย':'จัดส่งตามคิว (สั่งอิสระ)';
     document.getElementById('ov-total').textContent=total;
     document.getElementById('ov-line').href=CFG.LINE_OA_URL;
     document.getElementById('rv').classList.remove('show');
@@ -568,13 +520,23 @@ document.getElementById('rv-go').onclick=async()=>{
   }
 };
 
+// สะสมแต้ม modal
+document.getElementById('ov-point-btn').onclick=()=>{
+  document.getElementById('points-modal').classList.add('show');
+};
+document.getElementById('points-close').onclick=()=>{
+  document.getElementById('points-modal').classList.remove('show');
+};
+document.getElementById('points-modal').onclick=e=>{
+  if(e.target.id==='points-modal') document.getElementById('points-modal').classList.remove('show');
+};
+
 document.getElementById('ov-close').onclick=()=>{
   document.getElementById('ov').classList.remove('show');
   Object.keys(qty).forEach(k=>qty[k]=0);
   document.querySelectorAll('.qty').forEach(q=>q.textContent='0');
   document.querySelectorAll('.item').forEach(i=>i.classList.remove('has'));
-  document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
-  round=null; slipFile=null;
+  slipFile=null;
   document.getElementById('f-slip').value=''; document.getElementById('slip-prev').style.display='none';
   document.getElementById('slip-label').textContent='แนบสลิปโอน';
   setZone(null);
