@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Misuland กำแพงแสน — สั่งจองล่วงหน้า 🍞</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Misuland กำแพงแสน — สั่งเดลิเวอรี 🍞</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+Thai+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -72,7 +75,7 @@ section:first-of-type{margin-top:20px;}
 .cat{font-weight:800;font-size:13px;color:var(--accent);margin:4px 0 11px;text-transform:none;letter-spacing:.3px;display:flex;align-items:center;gap:8px;}
 .cat::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
 .item{display:flex;align-items:center;gap:13px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:12px;margin-bottom:11px;transition:.18s;box-shadow:var(--shadow-xs);}
-.item .ava{width:86px;height:86px;border-radius:15px;background:linear-gradient(160deg,#FFF1E0,#FBE3C6);display:grid;place-items:center;font-size:42px;flex:0 0 auto;overflow:hidden;position:relative;}
+.item .ava{width:86px;height:86px;border-radius:15px;background:#fff;border:1.5px solid var(--line);display:grid;place-items:center;font-size:42px;flex:0 0 auto;overflow:hidden;position:relative;}
 .item .ava img{width:100%;height:100%;object-fit:cover;display:block;}
 .item .ava.zoomable{cursor:zoom-in;}
 .item .ava .zoom{position:absolute;bottom:4px;right:4px;background:rgba(92,45,10,.62);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px;display:flex;align-items:center;gap:2px;}
@@ -91,6 +94,12 @@ section:first-of-type{margin-top:20px;}
 .item.has button.minus{visibility:visible;}
 .item.has{border-color:var(--accent2);background:linear-gradient(160deg,#FFF6EE,#FFEDDC);box-shadow:0 10px 22px -14px rgba(232,116,59,.55);}
 .item.has .ava{background:linear-gradient(160deg,#FFE6CC,#FBD7B0);}
+.item.soldout{opacity:.55;filter:grayscale(.5);}
+.item.soldout .step{display:none;}
+.item.soldout .ava{pointer-events:none;}
+.item .soldtag{display:none;font-size:10.5px;font-weight:800;color:#fff;background:var(--muted);padding:2px 8px;border-radius:8px;letter-spacing:.3px;}
+.item.soldout .soldtag{display:inline-block;}
+.item.soldout .pr{text-decoration:line-through;}
 
 /* ===== form ===== */
 .field{margin-bottom:13px;}
@@ -99,6 +108,7 @@ section:first-of-type{margin-top:20px;}
 .field input,.field textarea,.field select{width:100%;border:1.5px solid var(--border);background:#fff;border-radius:13px;padding:13px;font-size:15px;color:var(--brown);font-family:inherit;transition:.15s;}
 .field input::placeholder,.field textarea::placeholder{color:#C7A985;}
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,116,59,.14);}
+.zhint{display:none;font-size:12.5px;font-weight:700;color:var(--accent);background:#FFF1E4;border-radius:10px;padding:8px 10px;margin-top:7px;}
 .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23A0704A' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
 
 /* ===== pay ===== */
@@ -135,7 +145,26 @@ section:first-of-type{margin-top:20px;}
 .ov-card p{font-size:14px;color:var(--brown2);}
 .ov-card a.line{display:inline-flex;gap:7px;align-items:center;background:#06C755;color:#fff;padding:12px 22px;border-radius:26px;font-weight:700;margin-top:16px;box-shadow:0 10px 20px -10px rgba(6,199,85,.6);}
 .ov-card button.close{margin-top:14px;background:none;border:none;color:var(--muted);font-size:14px;text-decoration:underline;cursor:pointer;}
+.point-btn{display:inline-flex;gap:7px;align-items:center;justify-content:center;background:linear-gradient(160deg,#F4A259,#E8743B);color:#fff;padding:12px 22px;border-radius:26px;font-weight:700;font-size:15px;border:none;cursor:pointer;font-family:inherit;box-shadow:0 10px 20px -10px rgba(232,116,59,.6);transition:.15s;}
+.point-btn:active{transform:scale(.97);}
 .hint{font-size:12.5px;color:var(--muted);margin-top:8px;}
+/* ===== หน้าสรุปออเดอร์ก่อนยืนยัน ===== */
+.rv-card{text-align:left;max-width:420px;max-height:88vh;overflow:auto;padding:26px 20px;}
+.rv-card .big,.rv-card h2,.rv-sub{text-align:center;}
+.rv-sub{font-size:13.5px;color:var(--brown2);margin:2px 0 14px;}
+.rv-box{background:var(--cream3);border-radius:16px;padding:14px;font-size:14.5px;}
+.rv-h{font-size:11.5px;font-weight:800;color:var(--accent);letter-spacing:.3px;margin-bottom:5px;}
+.rv-row{display:flex;justify-content:space-between;gap:12px;padding:3px 0;}
+.rv-row span:first-child{color:var(--brown2);}
+.rv-row b{text-align:right;white-space:nowrap;}
+.rv-row.wrap b{white-space:normal;}
+.rv-hr{height:1px;background:var(--border);margin:10px 0;}
+.rv-total{font-size:20px;font-weight:800;color:var(--brown);}
+.rv-slip{margin:10px auto 0;border-radius:12px;max-height:130px;border:1px solid var(--border);}
+.rv-go{width:100%;margin-top:16px;background:linear-gradient(160deg,#37805F,#2D6A4F);color:#fff;border:none;border-radius:26px;padding:15px;font-family:inherit;font-size:16.5px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px -10px rgba(45,106,79,.7);}
+.rv-go:disabled{background:#C9BBA6;box-shadow:none;}
+.rv-go:not(:disabled):active{transform:scale(.97);}
+.rv-card button.close{display:block;margin:12px auto 0;}
 .err{color:#C0392B;font-size:13.5px;margin-top:10px;font-weight:600;display:none;text-align:center;}
 /* ===== lightbox ดูรูปเมนูใหญ่ ===== */
 .lb{position:fixed;inset:0;z-index:300;background:rgba(40,20,5,.9);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:14px;}
@@ -154,12 +183,12 @@ section:first-of-type{margin-top:20px;}
 <header>
   <div class="wrap hin">
     <img src="assets/logo.png" alt="Misuland">
-    <h1>กำแพงแสน · สั่งจองล่วงหน้า</h1>
-    <p>เลือกเมนู → เลือกรอบส่ง → โอน+แนบสลิป = คอนเฟิร์มคิวเลย 💛</p>
+    <h1>กำแพงแสน · สั่งเดลิเวอรี</h1>
+    <p>เลือกเมนู → กรอกจุดจัดส่ง → โอน+แนบสลิป = จัดส่งตามคิวทันที 💛</p>
     <div class="badges-row">
-      <span class="chip">🚚 ส่งถึงหอ</span>
+      <span class="chip">🚚 สั่งอิสระ ส่งถึงที่</span>
+      <span class="chip">🏪 รับเองหน้าร้านได้</span>
       <span class="chip">🔥 ทอดสดทุกออเดอร์</span>
-      <span class="chip">⏰ เลือกรอบส่งได้</span>
     </div>
   </div>
 </header>
@@ -167,11 +196,6 @@ section:first-of-type{margin-top:20px;}
 <div class="wrap">
 
   <button class="menu-full-btn" id="menuFullBtn">📋 ดูเมนูรวมทั้งแผ่น</button>
-
-  <section>
-    <div class="label"><span class="ic">⏰</span>เลือกรอบส่ง <small>ของส่งถึงตามเวลานี้</small></div>
-    <div class="rounds" id="rounds"></div>
-  </section>
 
   <section>
     <div class="label"><span class="ic">🍞</span>เลือกเมนู <small>กด + เพื่อเพิ่มจำนวน</small></div>
@@ -182,9 +206,10 @@ section:first-of-type{margin-top:20px;}
     <div class="label"><span class="ic">📍</span>ข้อมูลจัดส่ง</div>
     <div class="field"><label>ชื่อเล่น <small style="color:var(--muted);font-weight:500">(ชื่อเดียวกับในโอเพนแชท)</small></label><input id="f-name" placeholder="ชื่อเดียวกับในโอเพนแชท"></div>
     <div class="field"><label>เบอร์ / LINE ติดต่อ</label><input id="f-contact" placeholder="0xx-xxx-xxxx"></div>
-    <div class="field"><label>รับเอง หรือ จัดส่ง? 🚚 <small style="color:var(--muted);font-weight:500">(มารับเองที่ล่างหอ VS = ส่งฟรี 0฿)</small></label>
-      <select id="f-zone"><option value="">— เลือกรับเอง / โซนจัดส่ง —</option></select></div>
-    <div class="field"><label>หอ/ตึก + ห้อง (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B ห้อง 210"></div>
+    <div class="field"><label>รับเอง หรือ จัดส่ง? 🚚 <small style="color:var(--muted);font-weight:500">(รับเองหน้าร้าน ตลาดลานสบาย = ฟรี 0฿)</small></label>
+      <select id="f-zone"><option value="">— เลือกรับเอง / โซนจัดส่ง —</option></select>
+      <div class="zhint" id="zone-hint"></div></div>
+    <div class="field" id="dorm-field"><label>หอ/ตึก (ระบุให้ชัด)</label><input id="f-dorm" placeholder="เช่น หอใน 3 ตึก B"></div>
     <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><textarea id="f-note" rows="2" placeholder="เช่น แจ้งสิทธิ์ลูกค้าวันแรก 25 มิ.ย."></textarea></div>
   </section>
 
@@ -211,7 +236,19 @@ section:first-of-type{margin-top:20px;}
       <div class="n"><span id="cnt">0</span> ชิ้น · ค่าส่ง ฿<span id="ship">0</span></div>
       <div class="t">฿<span id="total">0</span></div>
     </div>
-    <button class="submit" id="submit" disabled>ส่งออเดอร์</button>
+    <button class="submit" id="submit" disabled>ตรวจออเดอร์</button>
+  </div>
+</div>
+
+<div class="ov" id="rv">
+  <div class="ov-card rv-card">
+    <div class="big">🧾</div>
+    <h2>ตรวจออเดอร์ก่อนส่ง</h2>
+    <p class="rv-sub">เช็คให้ชัวร์อีกรอบน้า ถูกแล้วค่อยกดยืนยัน</p>
+    <div class="rv-box" id="rv-body"></div>
+    <div class="err" id="rv-err"></div>
+    <button class="rv-go" id="rv-go">✅ ยืนยัน — ส่งออเดอร์</button>
+    <button class="close" id="rv-back">✏️ กลับไปแก้</button>
   </div>
 </div>
 
@@ -222,13 +259,31 @@ section:first-of-type{margin-top:20px;}
     <div>คิวของคุณ</div>
     <div class="qno">#<span id="ov-q">-</span></div>
     <div class="meta">
-      <div><span>รอบ</span><b id="ov-round">-</b></div>
-      <div><span>ส่งถึงประมาณ</span><b id="ov-time">-</b></div>
+      <div><span>การรับสินค้า</span><b id="ov-round">-</b></div>
+      <div><span id="ov-timelabel">การจัดส่ง</span><b id="ov-time">-</b></div>
       <div><span>ยอดรวม (รวมค่าส่ง)</span><b>฿<span id="ov-total">-</span></b></div>
     </div>
-    <p>ถึงรอบเดี๋ยวร้านทักไปน้า ขอบคุณค่า 🤍</p>
-    <a class="line" id="ov-line" href="#" target="_blank">💬 แอด LINE ร้าน รับคูปองส่วนลด</a>
-    <br><button class="close" id="ov-close">ปิด / สั่งเพิ่ม</button>
+    <p>จัดส่งตามคิวทันทีน้า รอรับความอร่อยได้เลย ขอบคุณค่า 🤍</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;align-items:center;">
+      <button class="point-btn" id="ov-point-btn" type="button">⭐ สะสมแต้ม</button>
+      <a class="line" id="ov-line" href="#" target="_blank" style="margin-top:0;">💬 แอด LINE ร้าน รับคูปองส่วนลด</a>
+    </div>
+    <button class="close" id="ov-close" style="margin-top:14px;">ปิด / สั่งเพิ่ม</button>
+  </div>
+</div>
+
+<div class="ov" id="points-modal">
+  <div class="ov-card" style="max-width:360px;max-height:90vh;overflow-y:auto;padding:22px 18px;">
+    <div style="font-size:32px;margin-bottom:2px;">⭐</div>
+    <h2 style="font-size:20px;margin-bottom:4px;">สะสมแต้ม Misuland</h2>
+    <p style="font-size:13px;color:var(--brown2);margin-bottom:12px;line-height:1.4;">แคปหน้าจอนี้ หรือสแกน QR Code เพื่อเปิดบัตรสะสมแต้มใน LINE ร้าน 💛</p>
+    <div style="background:#fff;padding:8px;border-radius:18px;border:1.5px solid var(--border);display:block;box-shadow:var(--shadow-xs);">
+      <img src="assets/qr-points.png" alt="บัตรสะสมแต้ม Misuland Fam" style="width:100%;max-width:280px;height:auto;object-fit:contain;margin:0 auto;border-radius:12px;display:block;">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;align-items:center;">
+      <a class="line" href="https://line.me/R/ti/p/%40605cjoud" target="_blank" style="margin-top:0;">💬 เปิด LINE สะสมแต้ม</a>
+      <button class="close" id="points-close" type="button" style="margin-top:6px;">✕ ปิดหน้าต่างนี้</button>
+    </div>
   </div>
 </div>
 
@@ -246,18 +301,6 @@ function closeLB(){document.getElementById('lb').classList.remove('show');}
 document.getElementById('lb').onclick=e=>{if(e.target.id==='lb'||e.target.id==='lb-x')closeLB();};
 document.getElementById('menuFullBtn').onclick=()=>openLB('assets/menu/menu-full.jpg','เมนูรวม Misuland กำแพงแสน',true);
 
-// ----- รอบส่ง -----
-const ROUNDS=[
-  {n:1,cut:"14:00",send:"16:00–16:45"},
-  {n:2,cut:"16:30",send:"18:00–18:45"},
-  {n:3,cut:"18:30",send:"19:45–20:30"},
-  {n:4,cut:"20:00",send:"ไม่เกิน 21:30"},
-  {n:5,label:"รับเลย",send:"พร้อมส่งเลย · ตอนคิวว่าง",instant:true},
-];
-const ROUND_TIME=Object.fromEntries(ROUNDS.map(r=>[r.n,r.send]));
-// รอบ "รับเลย" (5) ปกติปิดอยู่ จะเปิดต่อเมื่อร้านกดเปิด (round_state.closed=false) เท่านั้น
-function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
-
 // ----- เมนู (ขนมปังทอดเท่านั้น) -----
 const MENU=[
   {cat:"🍞 ขนมปังทอดญี่ปุ่น", items:[
@@ -269,37 +312,47 @@ const MENU=[
     {name:"ครีมสตรอเบอรี่", price:40, emoji:"🍓", img:"assets/menu/strawberry.jpg"},
     {name:"ช็อกโกแลตดูไบ", price:50, emoji:"💚", tag:"ใหม่", img:"assets/menu/dubai.jpg"},
     {name:"บิสคอฟครันชี่", price:40, emoji:"🍪", tag:"ใหม่", img:"assets/menu/biscoff.jpg"},
+    {name:"Shine Muscat Yogurt", price:45, emoji:"🍇", tag:"ใหม่", img:"assets/menu/shine-muscat.jpg"},
+    {name:"Mallow Melt", price:45, emoji:"🔥", tag:"ใหม่", img:"assets/menu/mallow-melt.jpg"},
+    {name:"โอริโอ้", price:40, emoji:"🍪", tag:"ใหม่", img:"assets/menu/oreo.jpg"},
+    {name:"ช็อกครันชี่", price:40, emoji:"🍫", tag:"ใหม่", img:"assets/menu/choc-crunchy.jpg"},
+    {name:"ช็อกสตรอ", price:40, emoji:"🍓", tag:"ใหม่", img:"assets/menu/choc-straw.jpg"},
+    {name:"Mint Chocolate", price:45, emoji:"🍃", tag:"ใหม่", img:"assets/menu/mint-chocolate.jpg"},
   ]},
 ];
 
 const ZONES=[
-  {label:"🚗 มารับเองที่ล่างหอ VS (ฟรีค่าส่ง)", fee:0},
-  {label:"หอ VS (ส่งฟรี)", fee:0},
+  {label:"🏪 รับเองหน้าร้าน ตลาดลานสบาย (ฟรีค่าส่ง)", fee:0, pickup:true},
   {label:"หน้า ม.เกษตร กำแพงแสน (หอพัก/ร้านค้า)", fee:10},
-  {label:"หอมาตาล/AW/นกฯ/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
+  {label:"หอมาตาล/AW/นก9/บ้านแสนสุข/ในซอยชบาขึ้นไป", fee:15},
   {label:"หอในรัฐ/เอก/นานาชาติ/บุคลากร/ร้อยพฤกษา", fee:20},
   {label:"คณะสัตวแพทย์/รพ.สัตว์/ตึกวิศวะ/สาธิต", fee:20},
   {label:"หอพักข้างมอ/รพ.กำแพงแสน", fee:30},
 ];
-const qty={}; let round=null; let slipFile=null; let roundClosed={}; let zoneFee=0;
+const qty={}; let slipFile=null; let menuAvail={};
+function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
 
 // zone select
 const zoneEl=document.getElementById('f-zone');
 ZONES.forEach((z,i)=>{const o=document.createElement('option');o.value=i;o.textContent=z.fee===0?`${z.label}`:`${z.label} (+${z.fee}฿)`;zoneEl.appendChild(o);});
-zoneEl.onchange=()=>{zoneFee=zoneEl.value===''?0:ZONES[+zoneEl.value].fee;recalc();};
-
-// render rounds
-const roundsEl=document.getElementById('rounds');
-ROUNDS.forEach(r=>{
-  const el=document.createElement('div'); el.className='round'; el.dataset.round=r.n;
-  el.innerHTML=`<b>${r.label||'รอบ '+r.n}</b><span>${r.instant?r.send:'ส่งถึง '+r.send}</span><div class="full" style="display:none">${r.instant?'ยังไม่เปิด':'เต็มแล้ว'}</div>`;
-  el.onclick=()=>{
-    if(isClosed(r.n)) return;
-    document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
-    el.classList.add('active'); round=r.n; recalc();
-  };
-  roundsEl.appendChild(el);
-});
+function curZone(){ const v=document.getElementById('f-zone').value; return v===''?null:ZONES[+v]; }
+function applyZoneUI(){
+  const z=curZone();
+  // รับเองหน้าร้าน = ไม่ต้องกรอกหอ/ตึก
+  document.getElementById('dorm-field').style.display=(z&&z.pickup)?'none':'block';
+  recalc();
+}
+function setZone(i){ zoneEl.value=(i===null?'':String(i)); applyZoneUI(); }
+function zoneHint(m){ const e=document.getElementById('zone-hint'); e.textContent=m||''; e.style.display=m?'block':'none'; }
+zoneEl.onchange=()=>{
+  zoneHint(null);
+  const z=curZone();
+  if(z&&z.pickup){
+    zoneHint('รับเองหน้าร้าน ตลาดลานสบาย — ค่าส่งฟรี 💛');
+  }
+  applyZoneUI();
+};
+applyZoneUI(); // เผื่อเบราว์เซอร์คืนค่าช่องโซนหลังรีเฟรช (ไม่ยิง change)
 
 // render menu
 const menuEl=document.getElementById('menu');
@@ -312,11 +365,11 @@ MENU.forEach(c=>{
       ? `<div class="ava zoomable"><img src="${it.img}" alt="${it.name}" loading="lazy"><span class="zoom">🔍 ดูรูป</span></div>`
       : `<div class="ava">${it.emoji||'🍞'}</div>`;
     row.innerHTML=`${ava}
-      <div class="info"><div class="nm">${it.name}${tag}</div><div class="pr">฿${it.price}</div></div>
+      <div class="info"><div class="nm">${it.name}${tag}<span class="soldtag">🔕 หมดวันนี้</span></div><div class="pr">฿${it.price}</div></div>
       <div class="step"><button class="minus">−</button><span class="qty">0</span><button class="plus">+</button></div>`;
     if(it.img){ row.querySelector('.ava').onclick=()=>openLB(it.img, `${it.name} · ฿${it.price}`); }
     const q=row.querySelector('.qty');
-    row.querySelector('.plus').onclick=()=>{qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
+    row.querySelector('.plus').onclick=()=>{if(!isAvail(it.name))return;qty[it.name]=(qty[it.name]||0)+1;q.textContent=qty[it.name];row.classList.add('has');recalc();};
     row.querySelector('.minus').onclick=()=>{qty[it.name]=Math.max(0,(qty[it.name]||0)-1);q.textContent=qty[it.name];if(!qty[it.name])row.classList.remove('has');recalc();};
     menuEl.appendChild(row);
   });
@@ -335,55 +388,108 @@ function recalc(){
   const items=buildItems();
   const cnt=items.reduce((s,i)=>s+i.qty,0);
   const subtotal=items.reduce((s,i)=>s+i.price*i.qty,0);
-  const shipping=cnt>0?zoneFee:0;
+  const z=curZone();                       // อ่านค่าโซนสดทุกครั้ง ไม่ cache (กันค่าส่งหายหลังรีเฟรช)
+  const shipping=(cnt>0&&z)?z.fee:0;
   const total=subtotal+shipping;
   document.getElementById('cnt').textContent=cnt;
   document.getElementById('ship').textContent=shipping;
   document.getElementById('total').textContent=total;
   const zoneOk=document.getElementById('f-zone').value!=='';
-  document.getElementById('submit').disabled=!(cnt>0&&round&&slipFile&&zoneOk);
+  document.getElementById('submit').disabled=!(cnt>0&&slipFile&&zoneOk);
   return {items,cnt,subtotal,shipping,total};
 }
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
 
-// ----- สถานะปิดรอบ (sync กับ dashboard) -----
-async function loadRoundState(){
-  const {data}=await supa.from('round_state').select('round,closed').eq('order_date',thaiDate());
-  roundClosed={}; (data||[]).forEach(r=>roundClosed[r.round]=r.closed);
-  applyRoundUI();
+// ----- เมนูพร้อมขาย/ปิด (sync กับ dashboard) -----
+async function loadMenuState(){
+  const {data}=await supa.from('menu_state').select('item,available');
+  menuAvail={}; (data||[]).forEach(r=>menuAvail[r.item]=r.available);
+  applyMenuUI();
 }
-function applyRoundUI(){
-  document.querySelectorAll('.round').forEach(el=>{
-    const n=+el.dataset.round, closed=isClosed(n);
-    el.classList.toggle('closed',closed);
-    el.querySelector('.full').style.display=closed?'flex':'none';
-    if(closed && round===n){ round=null; el.classList.remove('active'); recalc(); }
+function applyMenuUI(){
+  document.querySelectorAll('.item').forEach(el=>{
+    const name=el.dataset.name, ok=isAvail(name);
+    el.classList.toggle('soldout',!ok);
+    if(!ok && qty[name]>0){ qty[name]=0; const q=el.querySelector('.qty'); if(q)q.textContent='0'; el.classList.remove('has'); recalc();
+      document.getElementById('rv').classList.remove('show'); // ปิดหน้าสรุปที่ค้างอยู่ ตัวเลขเปลี่ยนแล้ว
+      showErr('เมนูบางตัวเพิ่งหมด เช็คยอดใหม่อีกทีน้า'); }
   });
 }
-supa.channel('rs-rt').on('postgres_changes',{event:'*',schema:'public',table:'round_state'},payload=>{
+supa.channel('ms-rt').on('postgres_changes',{event:'*',schema:'public',table:'menu_state'},payload=>{
   const rec=payload.new||payload.old;
-  if(rec && rec.order_date===thaiDate()){ roundClosed[rec.round]=rec.closed; applyRoundUI(); }
+  if(rec) menuAvail[rec.item]=payload.eventType==='DELETE'?true:rec.available;
+  applyMenuUI();
 }).subscribe();
-loadRoundState();
+loadMenuState();
 
-// submit
-document.getElementById('submit').onclick=async()=>{
-  const btn=document.getElementById('submit');
+// ----- รวมข้อมูลออเดอร์ + ตรวจความครบ -----
+function gather(){
   const {items,cnt,subtotal,shipping,total}=recalc();
-  const name=document.getElementById('f-name').value.trim();
-  const contact=document.getElementById('f-contact').value.trim();
-  const room=document.getElementById('f-dorm').value.trim();
   const zoneIdx=document.getElementById('f-zone').value;
-  const note=document.getElementById('f-note').value.trim();
+  const zone=zoneIdx===''?null:ZONES[+zoneIdx];
+  return {items,cnt,subtotal,shipping,total,zoneIdx,zone,
+    name:document.getElementById('f-name').value.trim(),
+    contact:document.getElementById('f-contact').value.trim(),
+    room:document.getElementById('f-dorm').value.trim(),
+    note:document.getElementById('f-note').value.trim()};
+}
+function validate(o){
+  if(o.cnt<1) return "ยังไม่ได้เลือกเมนูเลย";
+  if(o.zoneIdx==='') return "เลือกรับเอง / โซนจัดส่งก่อนน้า";
+  if(!o.name||!o.contact) return "กรอกชื่อ/เบอร์ให้ครบน้า";
+  if(!o.zone.pickup&&!o.room) return "กรอกหอ/ตึกให้ชัดน้า";
+  if(!slipFile) return "แนบสลิปโอนด้วยน้า";
+  return null;
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ----- หน้าสรุปออเดอร์ก่อนยืนยัน -----
+document.getElementById('submit').onclick=()=>{
   document.getElementById('err').style.display='none';
-  if(!round) return showErr("เลือกรอบส่งก่อนน้า");
-  if(isClosed(round)) return showErr("รอบนี้ปิดอยู่ เลือกรอบอื่นน้า");
-  if(cnt<1) return showErr("ยังไม่ได้เลือกเมนูเลย");
-  if(zoneIdx==='') return showErr("เลือกโซนจัดส่งก่อนน้า");
-  if(!name||!contact||!room) return showErr("กรอกชื่อ/เบอร์/หอ-ห้องให้ครบน้า");
-  if(!slipFile) return showErr("แนบสลิปโอนด้วยน้า");
-  const dorm=ZONES[+zoneIdx].label+" • "+room;
+  const o=gather();
+  const e=validate(o);
+  if(e) return showErr(e);
+  openReview(o);
+};
+function openReview(o){
+  const lines=o.items.map(it=>`<div class="rv-row"><span>${esc(it.name)} ×${it.qty}</span><b>฿${it.price*it.qty}</b></div>`).join('');
+  const place=o.zone.pickup?'รับเองหน้าร้าน ตลาดลานสบาย':esc(o.zone.label)+' • '+esc(o.room);
+  document.getElementById('rv-body').innerHTML=`
+    <div class="rv-h">🍞 เมนูที่สั่ง (${o.cnt} ชิ้น)</div>
+    ${lines}
+    <div class="rv-hr"></div>
+    <div class="rv-row"><span>การรับสินค้า</span><b>${o.zone.pickup?'🏪 รับเองหน้าร้าน':'🚚 จัดส่งเดลิเวอรี'}</b></div>
+    <div class="rv-row"><span>เวลา</span><b>${o.zone.pickup?'รับที่ตลาดลานสบาย':'จัดส่งตามคิวทันที (สั่งอิสระ)'}</b></div>
+    <div class="rv-hr"></div>
+    <div class="rv-h">📍 ผู้สั่ง</div>
+    <div class="rv-row"><span>ชื่อ</span><b>${esc(o.name)}</b></div>
+    <div class="rv-row"><span>ติดต่อ</span><b>${esc(o.contact)}</b></div>
+    <div class="rv-row wrap"><span>จุดรับ</span><b>${place}</b></div>
+    ${o.note?`<div class="rv-row wrap"><span>หมายเหตุ</span><b>${esc(o.note)}</b></div>`:''}
+    <div class="rv-hr"></div>
+    <div class="rv-row"><span>ค่าเมนู</span><b>฿${o.subtotal}</b></div>
+    <div class="rv-row"><span>ค่าส่ง</span><b>${o.shipping?'฿'+o.shipping:'ฟรี'}</b></div>
+    <div class="rv-row"><span><b>ยอดที่ต้องโอน</b></span><b class="rv-total">฿${o.total}</b></div>
+    ${slipFile?`<img class="rv-slip" src="${URL.createObjectURL(slipFile)}" alt="สลิป">`:''}`;
+  document.getElementById('rv-err').style.display='none';
+  const go=document.getElementById('rv-go'); go.disabled=false; go.textContent='✅ ยืนยัน — ส่งออเดอร์';
+  document.getElementById('rv').classList.add('show');
+}
+document.getElementById('rv-back').onclick=()=>document.getElementById('rv').classList.remove('show');
+document.getElementById('rv').onclick=e=>{if(e.target.id==='rv')document.getElementById('rv').classList.remove('show');};
+
+// submit จริง (กดจากหน้าสรุปเท่านั้น)
+document.getElementById('rv-go').onclick=async()=>{
+  const btn=document.getElementById('rv-go');
+  const o=gather();
+  const bad=validate(o);
+  if(bad){document.getElementById('rv').classList.remove('show');return showErr(bad);}
+  const {items,cnt,subtotal,shipping,total,name,contact,room,note}=o;
+  const rvErr=document.getElementById('rv-err');
+  rvErr.style.display='none';
+  const showRvErr=m=>{rvErr.textContent=m;rvErr.style.display='block';};
+  const dorm=o.zone.pickup?"รับเองหน้าร้าน ตลาดลานสบาย":o.zone.label+" • "+room;
 
   btn.disabled=true; btn.textContent="กำลังส่ง...";
   try{
@@ -394,6 +500,7 @@ document.getElementById('submit').onclick=async()=>{
     const slip_url=supa.storage.from('slips').getPublicUrl(path).data.publicUrl;
 
     const order_date=thaiDate();
+    const round=o.zone.pickup?6:1; // 6 = หน้าร้าน, 1 = จัดส่ง (สั่งอิสระ)
     const ins=await supa.from('orders').insert({order_date,round,name,contact,dorm,items,total,shipping,slip_url,note}).select().single();
     if(ins.error) throw ins.error;
 
@@ -402,16 +509,29 @@ document.getElementById('submit').onclick=async()=>{
     const qno=cntRes.count||1; // เลขคิวรันต่อเนื่องทั้งวัน (ไม่รีเซ็ตตามรอบ)
 
     document.getElementById('ov-q').textContent=qno;
-    document.getElementById('ov-round').textContent=round===5?'รับเลย':round;
-    document.getElementById('ov-time').textContent=ROUND_TIME[round];
+    document.getElementById('ov-round').textContent=o.zone.pickup?'🏪 รับเองหน้าร้าน':'🚚 จัดส่งเดลิเวอรี';
+    document.getElementById('ov-timelabel').textContent=o.zone.pickup?'จุดรับ':'การจัดส่ง';
+    document.getElementById('ov-time').textContent=o.zone.pickup?'ตลาดลานสบาย':'จัดส่งตามคิว (สั่งอิสระ)';
     document.getElementById('ov-total').textContent=total;
     document.getElementById('ov-line').href=CFG.LINE_OA_URL;
+    document.getElementById('rv').classList.remove('show');
     document.getElementById('ov').classList.add('show');
   }catch(err){
     console.error(err);
-    showErr("ส่งไม่สำเร็จ: "+(err.message||err)+" — ลองใหม่อีกครั้งน้า");
-    btn.disabled=false; btn.textContent="ส่งออเดอร์";
+    showRvErr("ส่งไม่สำเร็จ: "+(err.message||err)+" — ลองใหม่อีกครั้งน้า");
+    btn.disabled=false; btn.textContent="✅ ยืนยัน — ส่งออเดอร์";
   }
+};
+
+// สะสมแต้ม modal
+document.getElementById('ov-point-btn').onclick=()=>{
+  document.getElementById('points-modal').classList.add('show');
+};
+document.getElementById('points-close').onclick=()=>{
+  document.getElementById('points-modal').classList.remove('show');
+};
+document.getElementById('points-modal').onclick=e=>{
+  if(e.target.id==='points-modal') document.getElementById('points-modal').classList.remove('show');
 };
 
 document.getElementById('ov-close').onclick=()=>{
@@ -419,13 +539,12 @@ document.getElementById('ov-close').onclick=()=>{
   Object.keys(qty).forEach(k=>qty[k]=0);
   document.querySelectorAll('.qty').forEach(q=>q.textContent='0');
   document.querySelectorAll('.item').forEach(i=>i.classList.remove('has'));
-  document.querySelectorAll('.round').forEach(x=>x.classList.remove('active'));
-  round=null; slipFile=null; zoneFee=0;
+  slipFile=null;
   document.getElementById('f-slip').value=''; document.getElementById('slip-prev').style.display='none';
   document.getElementById('slip-label').textContent='แนบสลิปโอน';
-  document.getElementById('f-zone').value='';
+  setZone(null);
   document.getElementById('f-name').value=''; document.getElementById('f-contact').value=''; document.getElementById('f-dorm').value=''; document.getElementById('f-note').value='';
-  const b=document.getElementById('submit'); b.textContent='ส่งออเดอร์'; b.disabled=true;
+  const b=document.getElementById('submit'); b.textContent='ตรวจออเดอร์'; b.disabled=true;
   recalc(); window.scrollTo({top:0,behavior:'smooth'});
 };
 </script>

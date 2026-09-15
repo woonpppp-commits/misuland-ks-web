@@ -23,21 +23,22 @@ header button#clearday{border:none;border-radius:10px;padding:7px 12px;backgroun
 #gate input{padding:12px 16px;border-radius:12px;border:none;font-size:16px;font-family:inherit;text-align:center;}
 #gate button{padding:11px 28px;border-radius:24px;border:none;background:var(--accent);color:#fff;font-weight:800;font-size:15px;cursor:pointer;}
 
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:10px;margin:16px 0;}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:16px 0;}
 .sum{background:var(--cream2);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
-.sum.closed{background:#F2E3DF;border-color:#E0B4AC;}
 .sum b{display:block;font-size:13px;color:var(--accent);}
 .sum .c{font-size:24px;font-weight:800;}
 .sum .m{font-size:11.5px;color:var(--brown2);}
 
-.roundhdr{margin:20px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.roundhdr .t{font-size:17px;font-weight:800;}
+.tabs{display:flex;gap:8px;margin:16px 0 12px;flex-wrap:wrap;}
+.tab{background:var(--cream2);border:1.5px solid var(--border);border-radius:20px;padding:7px 16px;font-family:inherit;font-size:13px;font-weight:700;color:var(--brown2);cursor:pointer;transition:.15s;}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.pickup-tag{font-size:11px;font-weight:800;background:#E8F8F5;color:#117A65;border:1px solid #A3E4D7;padding:2px 8px;border-radius:10px;margin-left:6px;}
+.delivery-tag{font-size:11px;font-weight:800;background:#EBF5FB;color:#2471A3;border:1px solid #AED6F1;padding:2px 8px;border-radius:10px;margin-left:6px;}
+
+.roundhdr{margin:18px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.roundhdr .t{font-size:16.5px;font-weight:800;}
 .roundhdr .tm{font-size:13px;color:var(--muted);}
-.roundhdr .toggle{margin-left:auto;border:none;border-radius:20px;padding:7px 16px;font-family:inherit;font-weight:700;font-size:13.5px;cursor:pointer;}
-.toggle.open{background:#FADBD8;color:#922B21;}
-.toggle.closed{background:#D4EFDF;color:#1E8449;}
-.pill-closed{font-size:11.5px;font-weight:700;background:#922B21;color:#fff;padding:2px 9px;border-radius:12px;}
-.empty{color:var(--muted);font-size:14px;padding:10px 0;}
+.empty{color:var(--muted);font-size:14px;padding:18px 0;text-align:center;}
 
 /* เมนูพร้อมขาย/ปิด */
 .menupanel{background:var(--cream2);border:1px solid var(--border);border-radius:16px;padding:14px;margin:16px 0;}
@@ -130,8 +131,6 @@ const MENU_ITEMS=[
   {name:"ช็อกสตรอ",emoji:"🍓"},
   {name:"Mint Chocolate",emoji:"🍃"},
 ];
-// รอบ "รับเลย" (5) ปกติปิด เปิดเมื่อ round_state.closed=false เท่านั้น
-function isClosed(n){ return n===5 ? (roundClosed[n]!==false) : !!roundClosed[n]; }
 let _ac=null; // audio context สำหรับเสียงแจ้งเตือน
 function beep(){
   try{
@@ -163,17 +162,16 @@ function tryPass(){
 function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(0,10);}
 const dateEl=document.getElementById('date');
 
-let rows=[]; let roundClosed={}; let menuAvail={};
+let rows=[]; let menuAvail={};
 function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
 async function load(){
   const d=dateEl.value||thaiDate();
-  const [o,rs,ms]=await Promise.all([
+  const [o,ms]=await Promise.all([
     supa.from('orders').select('*').eq('order_date',d).order('created_at',{ascending:true}),
-    supa.from('round_state').select('round,closed').eq('order_date',d),
     supa.from('menu_state').select('item,available'),
   ]);
   if(o.error){document.getElementById('board').innerHTML='<div class="empty">โหลดไม่ได้: '+o.error.message+'</div>';return;}
-  rows=o.data||[]; roundClosed={}; (rs.data||[]).forEach(r=>roundClosed[r.round]=r.closed);
+  rows=o.data||[];
   menuAvail={}; (ms.data||[]).forEach(r=>menuAvail[r.item]=r.available);
   renderMenuPanel();
   render();
@@ -205,54 +203,91 @@ async function clearDay(){
   if(!confirm(`ล้างออเดอร์ทั้งหมดของวันที่ ${d}?\nคิวจะเริ่มนับ #1 ใหม่ในวันถัดไป (กู้คืนไม่ได้)`)) return;
   const o=await supa.from('orders').delete().eq('order_date',d);
   if(o.error){alert('ลบไม่สำเร็จ: '+o.error.message+'\n(ยังไม่ได้รัน schema-v4.sql ใน Supabase?)');return;}
-  await supa.from('round_state').delete().eq('order_date',d); // รีเซ็ตสถานะเปิด/ปิดรอบด้วย
   load();
 }
 
-async function toggleRound(r){
-  const d=dateEl.value||thaiDate();
-  const prev=roundClosed[r];
-  const next=!isClosed(r); // ค่า closed ใหม่ (สลับสถานะ — รองรับรอบรับเลยที่ default ปิด)
-  roundClosed[r]=next; render();
-  const {error}=await supa.from('round_state').upsert({order_date:d,round:r,closed:next},{onConflict:'order_date,round'});
-  if(error){alert('เปลี่ยนสถานะรอบไม่สำเร็จ: '+error.message); roundClosed[r]=prev; render();}
-}
+let currentFilter = 'all';
 
 function render(){
   // เลขคิวรันต่อเนื่องทั้งวัน (rows เรียงตาม created_at อยู่แล้ว) ตรงกับที่ลูกค้าเห็น
   const dayNo={}; rows.forEach((o,i)=>dayNo[o.id]=i+1);
   const sumEl=document.getElementById('summary'); sumEl.innerHTML='';
-  ROUNDS.forEach(r=>{
-    const rs=rows.filter(o=>o.round===r&&o.status!=='ยกเลิก');
-    const cnt=rs.length, baht=rs.reduce((s,o)=>s+o.total,0);
-    sumEl.innerHTML+=`<div class="sum ${isClosed(r)?'closed':''}"><b>${RLABEL(r)}${isClosed(r)?' 🔒':''}</b><div class="c">${cnt}</div><div class="m">฿${baht}</div></div>`;
-  });
+  
+  const validRows = rows.filter(o=>o.status!=='ยกเลิก');
+  const totalCnt = validRows.length;
+  const totalBaht = validRows.reduce((s,o)=>s+o.total,0);
+  
+  const deliveryRows = validRows.filter(o=>o.round!==6);
+  const deliveryCnt = deliveryRows.length;
+  const deliveryBaht = deliveryRows.reduce((s,o)=>s+o.total,0);
+
+  const pickupRows = validRows.filter(o=>o.round===6);
+  const pickupCnt = pickupRows.length;
+  const pickupBaht = pickupRows.reduce((s,o)=>s+o.total,0);
+
+  const pendingCnt = rows.filter(o=>['รอตรวจสลิป','ยืนยันแล้ว','กำลังทำ'].includes(o.status)).length;
+  const doneCnt = rows.filter(o=>o.status==='ส่งแล้ว').length;
+
+  sumEl.innerHTML = `
+    <div class="sum"><b>📦 ทั้งหมด</b><div class="c">${totalCnt}</div><div class="m">฿${totalBaht}</div></div>
+    <div class="sum"><b>🚚 จัดส่ง (สั่งอิสระ)</b><div class="c">${deliveryCnt}</div><div class="m">฿${deliveryBaht}</div></div>
+    <div class="sum"><b>🏪 รับหน้าร้าน</b><div class="c">${pickupCnt}</div><div class="m">฿${pickupBaht}</div></div>
+    <div class="sum"><b>⏳ รอดำเนินการ</b><div class="c">${pendingCnt}</div><div class="m">รอทำ/ส่ง</div></div>
+    <div class="sum"><b>✅ ส่งแล้ว</b><div class="c">${doneCnt}</div><div class="m">สำเร็จ</div></div>
+  `;
+
   const board=document.getElementById('board'); board.innerHTML='';
-  ROUNDS.forEach(r=>{
-    const rs=rows.filter(o=>o.round===r);
-    const closed=isClosed(r);
-    const hdr=document.createElement('div'); hdr.className='roundhdr';
-    hdr.innerHTML=`<span class="t">${RLABEL(r)}</span><span class="tm">${ROUND_TIME[r]}</span>
-      ${closed?'<span class="pill-closed">ปิดรับแล้ว</span>':''}
-      <button class="toggle ${closed?'closed':'open'}">${closed?'↻ เปิดรอบ':'⛔ ปิดรอบ'}</button>`;
-    hdr.querySelector('.toggle').onclick=()=>toggleRound(r);
-    board.appendChild(hdr);
-    if(!rs.length){board.insertAdjacentHTML('beforeend','<div class="empty">— ยังไม่มีออเดอร์ —</div>');return;}
-    rs.forEach(o=>board.appendChild(orderCard(o,dayNo[o.id])));
+  
+  const tabsDiv = document.createElement('div');
+  tabsDiv.className = 'tabs';
+  const filters = [
+    {id:'all', label:`ทั้งหมด (${rows.length})`},
+    {id:'delivery', label:`🚚 จัดส่ง (สั่งอิสระ) (${rows.filter(o=>o.round!==6).length})`},
+    {id:'pickup', label:`🏪 รับเองหน้าร้าน (${rows.filter(o=>o.round===6).length})`},
+    {id:'pending', label:`⏳ รอดำเนินการ (${rows.filter(o=>['รอตรวจสลิป','ยืนยันแล้ว','กำลังทำ'].includes(o.status)).length})`},
+    {id:'done', label:`✅ ส่งแล้ว (${rows.filter(o=>o.status==='ส่งแล้ว').length})`},
+  ];
+  filters.forEach(f=>{
+    const btn = document.createElement('button');
+    btn.className = `tab ${currentFilter===f.id?'active':''}`;
+    btn.textContent = f.label;
+    btn.onclick = ()=>{ currentFilter=f.id; render(); };
+    tabsDiv.appendChild(btn);
   });
+  board.appendChild(tabsDiv);
+
+  let filtered = rows;
+  if(currentFilter==='delivery') filtered = rows.filter(o=>o.round!==6);
+  else if(currentFilter==='pickup') filtered = rows.filter(o=>o.round===6);
+  else if(currentFilter==='pending') filtered = rows.filter(o=>['รอตรวจสลิป','ยืนยันแล้ว','กำลังทำ'].includes(o.status));
+  else if(currentFilter==='done') filtered = rows.filter(o=>o.status==='ส่งแล้ว');
+
+  const listHdr = document.createElement('div');
+  listHdr.className = 'roundhdr';
+  listHdr.innerHTML = `<span class="t">📋 คิวออเดอร์ตามเวลา (${filtered.length})</span><span class="tm">จัดส่งอิสระตามลำดับเวลา</span>`;
+  board.appendChild(listHdr);
+
+  if(!filtered.length){
+    board.insertAdjacentHTML('beforeend','<div class="empty">— ไม่มีออเดอร์ในหมวดนี้ —</div>');
+    return;
+  }
+  filtered.forEach(o=>board.appendChild(orderCard(o,dayNo[o.id])));
 }
 
 function orderCard(o,qno){
   const el=document.createElement('div'); el.className='order s-'+o.status;
   const itemsTxt=o.items.map(it=>`${it.name} ×${it.qty}`).join(' · ');
   const opts=STATUSES.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('');
+  const typeTag = o.round===6
+    ? '<span class="pickup-tag">🏪 รับเองหน้าร้าน</span>'
+    : '<span class="delivery-tag">🚚 จัดส่งอิสระ</span>';
   el.innerHTML=`
     <div class="q">#${qno}</div>
     <div class="body">
-      <div class="top"><div class="who">${esc(o.name)} <span class="badge b-${o.status}">${o.status}</span></div><div class="tot">฿${o.total}</div></div>
+      <div class="top"><div class="who">${esc(o.name)} ${typeTag} <span class="badge b-${o.status}">${o.status}</span></div><div class="tot">฿${o.total}</div></div>
       <div class="dorm">📍 ${esc(o.dorm)} · 📞 ${esc(o.contact)}</div>
       <div class="items">${esc(itemsTxt)}</div>
-      <div class="ct">🚚 ค่าส่ง ฿${o.shipping||0} · ยอดโอนรวม ฿${o.total}</div>
+      <div class="ct">${o.round===6?'🏪 รับเองหน้าร้าน (ฟรีค่าส่ง)':'🚚 ค่าส่ง ฿'+(o.shipping||0)} · ยอดโอนรวม ฿${o.total}</div>
       ${o.note?`<div class="note">📝 ${esc(o.note)}</div>`:''}
       <div class="row2">
         ${o.slip_url?`<a class="slip" href="${o.slip_url}" target="_blank">🧾 ดูสลิป</a>`:'<span class="ct">ไม่มีสลิป</span>'}
@@ -283,7 +318,6 @@ function init(){
   document.getElementById('reload').onclick=load;
   document.getElementById('clearday').onclick=clearDay;
   supa.channel('rt').on('postgres_changes',{event:'*',schema:'public',table:'orders'},flash)
-    .on('postgres_changes',{event:'*',schema:'public',table:'round_state'},flash)
     .on('postgres_changes',{event:'*',schema:'public',table:'menu_state'},payload=>{
       const rec=payload.new||payload.old;
       if(rec) menuAvail[rec.item]=payload.eventType==='DELETE'?true:rec.available;
