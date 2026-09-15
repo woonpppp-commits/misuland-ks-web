@@ -122,13 +122,14 @@ const MENU_ITEMS=[
   {name:"คัสตาร์ดหน้าไหม้",emoji:"🍮"},
   {name:"ช็อกกล้วย",emoji:"🍌"},
   {name:"ครีมสตรอเบอรี่",emoji:"🍓"},
+  {name:"ช็อกสตรอ",emoji:"🍓"},
+  {name:"มัทฉะสตอ",emoji:"🍓"},
   {name:"ช็อกโกแลตดูไบ",emoji:"💚"},
   {name:"บิสคอฟครันชี่",emoji:"🍪"},
   {name:"Shine Muscat Yogurt",emoji:"🍇"},
   {name:"Mallow Melt",emoji:"🔥"},
   {name:"โอริโอ้",emoji:"🍪"},
-  {name:"ช็อกครันชี่",emoji:"🍫"},
-  {name:"ช็อกสตรอ",emoji:"🍓"},
+  {name:"ช็อกครั้นชี่",emoji:"🍫"},
   {name:"Mint Chocolate",emoji:"🍃"},
 ];
 let _ac=null; // audio context สำหรับเสียงแจ้งเตือน
@@ -163,7 +164,14 @@ function thaiDate(){return new Date(Date.now()+7*3600*1000).toISOString().slice(
 const dateEl=document.getElementById('date');
 
 let rows=[]; let menuAvail={};
-function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
+function isAvail(name){
+  if (name === "ช็อกครั้นชี่") {
+    if (menuAvail["ช็อกครั้นชี่"] !== undefined) return menuAvail["ช็อกครั้นชี่"] !== false;
+    if (menuAvail["ช็อกครันชี่"] !== undefined) return menuAvail["ช็อกครันชี่"] !== false;
+    return true;
+  }
+  return menuAvail[name]!==false;
+} // ไม่มี row = พร้อมขาย
 async function load(){
   const d=dateEl.value||thaiDate();
   const [o,ms]=await Promise.all([
@@ -192,8 +200,13 @@ function renderMenuPanel(){
 async function toggleMenu(name){
   const prev=isAvail(name);
   const next=!prev;
-  menuAvail[name]=next; renderMenuPanel();
+  menuAvail[name]=next;
+  if(name==="ช็อกครั้นชี่") menuAvail["ช็อกครันชี่"]=next;
+  renderMenuPanel();
   const {error}=await supa.from('menu_state').upsert({item:name,available:next,updated_at:new Date().toISOString()},{onConflict:'item'});
+  if(name==="ช็อกครั้นชี่"){
+    await supa.from('menu_state').upsert({item:"ช็อกครันชี่",available:next,updated_at:new Date().toISOString()},{onConflict:'item'});
+  }
   if(error){alert('เปลี่ยนสถานะเมนูไม่สำเร็จ: '+error.message+'\n(ยังไม่ได้รัน schema-v5.sql ใน Supabase?)'); menuAvail[name]=prev; renderMenuPanel();}
 }
 function fmtTime(ts){return new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'});}

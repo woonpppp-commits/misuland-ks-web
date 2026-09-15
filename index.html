@@ -310,13 +310,14 @@ const MENU=[
     {name:"คัสตาร์ดหน้าไหม้", price:40, emoji:"🍮", img:"assets/menu/custard.jpg"},
     {name:"ช็อกกล้วย", price:40, emoji:"🍌", img:"assets/menu/chocbanana.jpg"},
     {name:"ครีมสตรอเบอรี่", price:40, emoji:"🍓", img:"assets/menu/strawberry.jpg"},
+    {name:"ช็อกสตรอ", price:40, emoji:"🍓", tag:"ใหม่", img:"assets/menu/choc-straw.jpg"},
+    {name:"มัทฉะสตอ", price:40, emoji:"🍓", tag:"ใหม่", img:"assets/menu/matcha-straw.jpg"},
     {name:"ช็อกโกแลตดูไบ", price:50, emoji:"💚", tag:"ใหม่", img:"assets/menu/dubai.jpg"},
     {name:"บิสคอฟครันชี่", price:40, emoji:"🍪", tag:"ใหม่", img:"assets/menu/biscoff.jpg"},
     {name:"Shine Muscat Yogurt", price:45, emoji:"🍇", tag:"ใหม่", img:"assets/menu/shine-muscat.jpg"},
     {name:"Mallow Melt", price:45, emoji:"🔥", tag:"ใหม่", img:"assets/menu/mallow-melt.jpg"},
     {name:"โอริโอ้", price:40, emoji:"🍪", tag:"ใหม่", img:"assets/menu/oreo.jpg"},
-    {name:"ช็อกครันชี่", price:40, emoji:"🍫", tag:"ใหม่", img:"assets/menu/choc-crunchy.jpg"},
-    {name:"ช็อกสตรอ", price:40, emoji:"🍓", tag:"ใหม่", img:"assets/menu/choc-straw.jpg"},
+    {name:"ช็อกครั้นชี่", price:40, emoji:"🍫", tag:"ใหม่", img:"assets/menu/choc-crunchy.jpg"},
     {name:"Mint Chocolate", price:45, emoji:"🍃", tag:"ใหม่", img:"assets/menu/mint-chocolate.jpg"},
   ]},
 ];
@@ -330,7 +331,14 @@ const ZONES=[
   {label:"หอพักข้างมอ/รพ.กำแพงแสน", fee:30},
 ];
 const qty={}; let slipFile=null; let menuAvail={};
-function isAvail(name){ return menuAvail[name]!==false; } // ไม่มี row = พร้อมขาย
+function isAvail(name){
+  if (name === "ช็อกครั้นชี่") {
+    if (menuAvail["ช็อกครั้นชี่"] !== undefined) return menuAvail["ช็อกครั้นชี่"] !== false;
+    if (menuAvail["ช็อกครันชี่"] !== undefined) return menuAvail["ช็อกครันชี่"] !== false;
+    return true;
+  }
+  return menuAvail[name]!==false;
+} // ไม่มี row = พร้อมขาย
 
 // zone select
 const zoneEl=document.getElementById('f-zone');
